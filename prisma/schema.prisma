@@ -66,6 +66,7 @@ model User {
   displayName String   @map("display_name")
   email       String   @unique
   password    String   // Hashed password
+  avatarUrl   String?  @map("avatar_url")
   active      Boolean  @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

@@ -13,6 +13,7 @@ import {
     Upload,
     BarChart3,
     UserCircle,
+    User,
     X,
 } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const advisorNavItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/leads', label: 'My Leads', icon: Users },
     { href: '/call-list', label: 'Daily Call List', icon: PhoneCall },
+    { href: '/profile', label: 'My Profile', icon: UserCircle },
 ];
 
 const adminNavItems = [
@@ -35,6 +37,7 @@ const adminNavItems = [
     { href: '/reports', label: 'Reports', icon: BarChart3 },
     { href: '/users', label: 'User Management', icon: UserCircle },
     { href: '/settings', label: 'Settings', icon: Settings },
+    { href: '/profile', label: 'My Profile', icon: User },
 ];
 
 export function Sidebar({ userRole, userName }: SidebarProps) {
@@ -106,7 +109,10 @@ export function Sidebar({ userRole, userName }: SidebarProps) {
 
                 {/* User Info */}
                 <div className="p-4 border-t border-[hsl(222,47%,15%)]">
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(222,47%,12%)]">
+                    <Link
+                        href="/profile"
+                        className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(222,47%,12%)] hover:bg-[hsl(222,47%,14%)] transition-colors"
+                    >
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
                             {userName.charAt(0).toUpperCase()}
                         </div>
@@ -114,7 +120,7 @@ export function Sidebar({ userRole, userName }: SidebarProps) {
                             <p className="text-sm font-medium truncate">{userName}</p>
                             <p className="text-xs text-gray-500 capitalize">{userRole}</p>
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </aside>
         </>
