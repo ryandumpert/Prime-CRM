@@ -2,10 +2,8 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-// Initialize Prisma with the datasource URL from environment
-const prisma = new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
-});
+// Initialize Prisma (reads DATABASE_URL from environment by default)
+const prisma = new PrismaClient();
 
 async function main() {
     console.log('🌱 Seeding database...\n');
