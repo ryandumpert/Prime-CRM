@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
-import { TERMINAL_STATUSES, CALL_LIST_DAYS_THRESHOLD, LEAD_STATUSES } from '@/lib/constants';
+import { TERMINAL_STATUSES, CALL_LIST_DAYS_THRESHOLD, LEAD_STATUSES, PIPELINES, PipelineType } from '@/lib/constants';
 
 // GET /api/dashboard/stats - Get dashboard statistics
 export async function GET(request: NextRequest) {
@@ -127,6 +127,14 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        // Get pipeline counts
+        const pipelineCounts: Record<string, number> = {};
+        for (const pipeline of PIPELINES) {
+            pipelineCounts[pipeline] = await prisma.lead.count({
+                where: { ...baseWhere, pipeline },
+            });
+        }
+
         return NextResponse.json({
             data: {
                 totalLeads,
@@ -137,6 +145,7 @@ export async function GET(request: NextRequest) {
                 contactedToday,
                 statusCounts,
                 advisorStats,
+                pipelineCounts,
             },
         });
     } catch (error) {

@@ -205,3 +205,62 @@ export const HEADER_PATTERNS = {
     date: ['date', 'created', 'lead date', 'created_at', 'createdat'],
     advisor: ['advisor', 'assigned advisor', 'loan officer', 'lo', 'advisor name', 'assigned to', 'rep', 'loan advisor', 'assigned advisor name'],
 };
+
+// === PIPELINES ===
+
+export const PIPELINES = ['cold_leads', 'warm_leads', 'processing'] as const;
+export type PipelineType = typeof PIPELINES[number];
+
+export const PIPELINE_LABELS: Record<PipelineType, string> = {
+    cold_leads: 'Cold Leads',
+    warm_leads: 'Warm Leads',
+    processing: 'Processing',
+};
+
+export const PIPELINE_DESCRIPTIONS: Record<PipelineType, string> = {
+    cold_leads: 'Outreach & daily call list',
+    warm_leads: 'Active cultivation',
+    processing: 'Loan lifecycle',
+};
+
+export const PIPELINE_COLORS: Record<PipelineType, { bg: string; text: string; border: string; accent: string }> = {
+    cold_leads: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30', accent: '#3b82f6' },
+    warm_leads: { bg: 'bg-orange-500/20', text: 'text-orange-400', border: 'border-orange-500/30', accent: '#f97316' },
+    processing: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30', accent: '#10b981' },
+};
+
+// Which statuses appear as columns in each pipeline's Kanban board
+export const PIPELINE_STATUSES: Record<PipelineType, LeadStatusType[]> = {
+    cold_leads: ['NEW', 'ATTEMPTED_CONTACT', 'CONTACTED'],
+    warm_leads: ['CONTACTED', 'PREQUAL_IN_PROGRESS', 'DOCS_REQUESTED', 'DOCS_RECEIVED'],
+    processing: ['SUBMITTED_TO_LENDER', 'UNDERWRITING', 'CONDITIONAL_APPROVAL', 'CLEAR_TO_CLOSE', 'CLOSED_FUNDED'],
+};
+
+// Which pipelines a lead can be transferred TO from a given pipeline
+export const PIPELINE_TRANSFERS: Record<PipelineType, PipelineType[]> = {
+    cold_leads: ['warm_leads'],
+    warm_leads: ['cold_leads', 'processing'],
+    processing: [],
+};
+
+// Default status when transferring INTO a pipeline
+export const PIPELINE_ENTRY_STATUS: Record<PipelineType, LeadStatusType> = {
+    cold_leads: 'NEW',
+    warm_leads: 'CONTACTED',
+    processing: 'SUBMITTED_TO_LENDER',
+};
+
+// Derive which pipeline a status naturally belongs to (used for backfill migration)
+export function getDefaultPipelineForStatus(status: LeadStatusType): PipelineType | null {
+    if (['NEW', 'ATTEMPTED_CONTACT'].includes(status)) return 'cold_leads';
+    if (['CONTACTED', 'PREQUAL_IN_PROGRESS', 'DOCS_REQUESTED', 'DOCS_RECEIVED'].includes(status)) return 'warm_leads';
+    if (['SUBMITTED_TO_LENDER', 'UNDERWRITING', 'CONDITIONAL_APPROVAL', 'CLEAR_TO_CLOSE', 'CLOSED_FUNDED'].includes(status)) return 'processing';
+    // Terminal statuses return null (they're in whatever pipeline they were in before)
+    return null;
+}
+
+// Check if a status is valid for a given pipeline
+export function isStatusValidForPipeline(status: LeadStatusType, pipeline: PipelineType): boolean {
+    return PIPELINE_STATUSES[pipeline].includes(status);
+}
+

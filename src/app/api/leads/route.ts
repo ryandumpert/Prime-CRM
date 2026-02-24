@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
-import { TERMINAL_STATUSES, CALL_LIST_DAYS_THRESHOLD } from '@/lib/constants';
+import { TERMINAL_STATUSES, CALL_LIST_DAYS_THRESHOLD, PipelineType, PIPELINES } from '@/lib/constants';
 
 // GET /api/leads - Get leads with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         const callListOnly = searchParams.get('callListOnly') === 'true';
         const sortField = searchParams.get('sortField') || 'createdAt';
         const sortDirection = searchParams.get('sortDirection') || 'desc';
+        const pipeline = searchParams.get('pipeline') as PipelineType | null;
 
         // Build where clause
         const where: any = { archived: false };
@@ -38,6 +39,11 @@ export async function GET(request: NextRequest) {
         // Priority filter
         if (priority) {
             where.priority = priority;
+        }
+
+        // Pipeline filter
+        if (pipeline && PIPELINES.includes(pipeline)) {
+            where.pipeline = pipeline;
         }
 
         // Search filter
@@ -140,6 +146,7 @@ export async function POST(request: NextRequest) {
                 assignedAdvisorUserId,
                 priority: priority || 'normal',
                 status: 'NEW',
+                pipeline: 'cold_leads',
             },
             include: {
                 assignedAdvisor: {

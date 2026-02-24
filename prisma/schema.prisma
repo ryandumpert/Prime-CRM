@@ -41,6 +41,13 @@ enum Priority {
   high
 }
 
+// Pipeline Enum
+enum Pipeline {
+  cold_leads
+  warm_leads
+  processing
+}
+
 // Interaction Type Enum
 enum InteractionType {
   call
@@ -97,6 +104,7 @@ model Lead {
 
   // Pipeline
   status                LeadStatus @default(NEW)
+  pipeline              Pipeline   @default(cold_leads)
   statusUpdatedAt       DateTime?  @map("status_updated_at")
 
   // Follow-up
@@ -129,6 +137,8 @@ model Lead {
 
   @@index([assignedAdvisorUserId])
   @@index([status])
+  @@index([pipeline])
+  @@index([pipeline, status])
   @@index([lastContactedAt])
   @@index([emailPrimary])
   @@index([phonePrimary])

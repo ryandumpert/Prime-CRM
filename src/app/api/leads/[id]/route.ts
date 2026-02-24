@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import prisma from '@/lib/db';
-import { isValidTransition, shouldUpdateLastContacted, LeadStatusType } from '@/lib/constants';
+import { isValidTransition, shouldUpdateLastContacted, LeadStatusType, PipelineType, PIPELINES, PIPELINE_STATUSES, PIPELINE_ENTRY_STATUS, PIPELINE_TRANSFERS, isStatusValidForPipeline } from '@/lib/constants';
 
 // GET /api/leads/[id] - Get a single lead with interactions
 export async function GET(
@@ -92,6 +92,7 @@ export async function PATCH(
             fullName,
             phonePrimary,
             emailPrimary,
+            pipeline,
         } = body;
 
         // Validate status transition if status is being changed
@@ -129,6 +130,25 @@ export async function PATCH(
         // Only admins can reassign leads
         if (assignedAdvisorUserId !== undefined && session.user.role === 'admin') {
             updateData.assignedAdvisorUserId = assignedAdvisorUserId;
+        }
+
+        // Handle pipeline transfer
+        if (pipeline !== undefined && pipeline !== existingLead.pipeline && PIPELINES.includes(pipeline)) {
+            const currentPipeline = existingLead.pipeline as PipelineType;
+            const newPipeline = pipeline as PipelineType;
+
+            // Validate the transfer is allowed
+            if (!PIPELINE_TRANSFERS[currentPipeline]?.includes(newPipeline)) {
+                return NextResponse.json({ error: `Cannot transfer from ${currentPipeline} to ${newPipeline}` }, { status: 400 });
+            }
+
+            updateData.pipeline = newPipeline;
+
+            // If no explicit status was provided, set to the pipeline's entry status
+            if (!status) {
+                updateData.status = PIPELINE_ENTRY_STATUS[newPipeline];
+                updateData.statusUpdatedAt = new Date();
+            }
         }
 
         // Update lead
@@ -180,6 +200,23 @@ export async function PATCH(
                     metadata: {
                         from: existingLead.assignedAdvisorUserId,
                         to: assignedAdvisorUserId
+                    },
+                },
+            });
+        }
+
+        // Create pipeline change interaction if pipeline changed
+        if (pipeline !== undefined && pipeline !== existingLead.pipeline) {
+            await prisma.interaction.create({
+                data: {
+                    leadId: id,
+                    userId: session.user.id,
+                    type: 'status_change',
+                    direction: 'internal',
+                    summary: `Pipeline changed from ${existingLead.pipeline} to ${pipeline}`,
+                    metadata: {
+                        fromPipeline: existingLead.pipeline,
+                        toPipeline: pipeline,
                     },
                 },
             });

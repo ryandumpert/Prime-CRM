@@ -15,6 +15,7 @@ import {
     UserCircle,
     User,
     X,
+    Kanban,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,6 +25,7 @@ interface SidebarProps {
 
 const advisorNavItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/pipeline', label: 'Pipeline Board', icon: Kanban },
     { href: '/leads', label: 'My Leads', icon: Users },
     { href: '/call-list', label: 'Daily Call List', icon: PhoneCall },
     { href: '/profile', label: 'My Profile', icon: UserCircle },
@@ -31,6 +33,7 @@ const advisorNavItems = [
 
 const adminNavItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/pipeline', label: 'Pipeline Board', icon: Kanban },
     { href: '/leads', label: 'All Leads', icon: Users },
     { href: '/call-list', label: 'Daily Call List', icon: PhoneCall },
     { href: '/import', label: 'Import Leads', icon: Upload },
