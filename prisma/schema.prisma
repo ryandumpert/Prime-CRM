@@ -1,0 +1,192 @@
+// Prime Loan Advisors CRM - Database Schema
+// Based on blueprint.md Data Model specification
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User Roles Enum
+enum Role {
+  admin
+  advisor
+}
+
+// Lead Status Enum - Exact strings from blueprint.md
+enum LeadStatus {
+  NEW
+  ATTEMPTED_CONTACT
+  CONTACTED
+  PREQUAL_IN_PROGRESS
+  DOCS_REQUESTED
+  DOCS_RECEIVED
+  SUBMITTED_TO_LENDER
+  UNDERWRITING
+  CONDITIONAL_APPROVAL
+  CLEAR_TO_CLOSE
+  CLOSED_FUNDED
+  NOT_INTERESTED
+  UNQUALIFIED
+  LOST
+  DO_NOT_CONTACT
+}
+
+// Priority Enum
+enum Priority {
+  low
+  normal
+  high
+}
+
+// Interaction Type Enum
+enum InteractionType {
+  call
+  text
+  email
+  note
+  status_change
+  assignment_change
+}
+
+// Interaction Direction Enum
+enum InteractionDirection {
+  outbound
+  inbound
+  internal
+}
+
+// === CORE ENTITIES ===
+
+model User {
+  id          String   @id @default(uuid())
+  role        Role     @default(advisor)
+  displayName String   @map("display_name")
+  email       String   @unique
+  password    String   // Hashed password
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  assignedLeads Lead[]        @relation("AdvisorLeads")
+  interactions  Interaction[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model Lead {
+  id                    String     @id @default(uuid())
+  externalSource        String     @default("master_leads_list") @map("external_source")
+  externalRowId         String?    @map("external_row_id")
+
+  // Advisor Assignment
+  assignedAdvisorUserId String?    @map("assigned_advisor_user_id")
+  assignedAdvisor       User?      @relation("AdvisorLeads", fields: [assignedAdvisorUserId], references: [id])
+
+  // Contact Fields
+  firstName             String?    @map("first_name")
+  lastName              String?    @map("last_name")
+  fullName              String?    @map("full_name")
+  phonePrimary          String?    @map("phone_primary") // E.164 normalized
+  emailPrimary          String?    @map("email_primary")
+
+  // Pipeline
+  status                LeadStatus @default(NEW)
+  statusUpdatedAt       DateTime?  @map("status_updated_at")
+
+  // Follow-up
+  lastContactedAt       DateTime?  @map("last_contacted_at")
+  nextActionAt          DateTime?  @map("next_action_at")
+  priority              Priority   @default(normal)
+
+  // Compliance
+  doNotCall             Boolean    @default(false) @map("do_not_call")
+  doNotText             Boolean    @default(false) @map("do_not_text")
+  doNotEmail            Boolean    @default(false) @map("do_not_email")
+  consentSms            Boolean?   @map("consent_sms")
+  consentCall           Boolean?   @map("consent_call")
+  optOutAt              DateTime?  @map("opt_out_at")
+
+  // Raw Import Preservation
+  rawImportPayload      Json?      @map("raw_import_payload")
+  rawImportHash         String?    @map("raw_import_hash")
+
+  // Archive
+  archived              Boolean    @default(false)
+  archivedAt            DateTime?  @map("archived_at")
+
+  // Timestamps
+  createdAt             DateTime   @default(now()) @map("created_at")
+  updatedAt             DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  interactions          Interaction[]
+
+  @@index([assignedAdvisorUserId])
+  @@index([status])
+  @@index([lastContactedAt])
+  @@index([emailPrimary])
+  @@index([phonePrimary])
+  @@index([rawImportHash])
+  @@index([archived])
+  @@map("leads")
+}
+
+model Interaction {
+  id         String               @id @default(uuid())
+  leadId     String               @map("lead_id")
+  lead       Lead                 @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId     String               @map("user_id")
+  user       User                 @relation(fields: [userId], references: [id])
+
+  type       InteractionType
+  direction  InteractionDirection?
+  outcome    String?              // Enum-like values based on type
+  summary    String?
+  body       String?              @db.Text
+  occurredAt DateTime             @default(now()) @map("occurred_at")
+  metadata   Json?
+
+  createdAt  DateTime             @default(now()) @map("created_at")
+
+  @@index([leadId])
+  @@index([userId])
+  @@index([occurredAt])
+  @@map("interactions")
+}
+
+model Import {
+  id            String    @id @default(uuid())
+  sourceName    String    @default("master_leads_list") @map("source_name")
+  sheetName     String    @default("Sheet1") @map("sheet_name")
+  startedAt     DateTime  @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  rowsProcessed Int       @default(0) @map("rows_processed")
+  rowsInserted  Int       @default(0) @map("rows_inserted")
+  rowsUpdated   Int       @default(0) @map("rows_updated")
+  rowsFailed    Int       @default(0) @map("rows_failed")
+  errorLog      Json?     @map("error_log") // Array of row-level errors
+
+  @@map("imports")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorUserId  String?  @map("actor_user_id")
+  actor        User?    @relation(fields: [actorUserId], references: [id])
+  entityType   String   @map("entity_type") // 'lead' | 'user' | 'import'
+  entityId     String   @map("entity_id")
+  action       String
+  before       Json?
+  after        Json?
+  occurredAt   DateTime @default(now()) @map("occurred_at")
+
+  @@index([entityType, entityId])
+  @@index([actorUserId])
+  @@index([occurredAt])
+  @@map("audit_log")
+}
