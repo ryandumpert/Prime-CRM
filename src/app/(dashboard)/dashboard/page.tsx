@@ -187,34 +187,66 @@ export default function DashboardPage() {
             {/* Advisor Stats (Admin Only) */}
             {isAdmin && stats?.advisorStats && stats.advisorStats.length > 0 && (
                 <Card>
-                    <h3 className="text-lg font-semibold mb-4">Advisor Performance</h3>
-                    <div className="overflow-x-auto">
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Advisor</th>
-                                    <th className="text-right">Total Leads</th>
-                                    <th className="text-right">Call List</th>
-                                    <th className="text-right">Contacted Today</th>
-                                    <th className="text-right">This Week</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {stats.advisorStats.map((advisor) => (
-                                    <tr key={advisor.advisorId}>
-                                        <td className="font-medium">{advisor.advisorName}</td>
-                                        <td className="text-right">{advisor.totalLeads}</td>
-                                        <td className="text-right">
-                                            <span className={advisor.callListCount > 10 ? 'text-orange-400' : ''}>
-                                                {advisor.callListCount}
-                                            </span>
-                                        </td>
-                                        <td className="text-right text-green-400">{advisor.contactedToday}</td>
-                                        <td className="text-right">{advisor.contactedThisWeek}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <h3 className="text-lg font-semibold mb-6">Advisor Performance</h3>
+
+                    {/* Column Headers */}
+                    <div className="grid grid-cols-[1fr_repeat(4,80px)] md:grid-cols-[1fr_repeat(4,100px)] gap-2 px-4 mb-3">
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Advisor</span>
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Leads</span>
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Call List</span>
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Today</span>
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Week</span>
+                    </div>
+
+                    {/* Advisor Rows */}
+                    <div className="space-y-2">
+                        {stats.advisorStats.map((advisor) => (
+                            <div
+                                key={advisor.advisorId}
+                                className="grid grid-cols-[1fr_repeat(4,80px)] md:grid-cols-[1fr_repeat(4,100px)] gap-2 items-center p-4 rounded-xl bg-[hsl(222,47%,10%)] hover:bg-[hsl(222,47%,12%)] transition-colors"
+                            >
+                                {/* Advisor Name with Avatar */}
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-blue-500/20 flex items-center justify-center text-sm font-semibold text-blue-300 shrink-0">
+                                        {advisor.advisorName.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span className="font-medium truncate text-sm md:text-base">{advisor.advisorName}</span>
+                                </div>
+
+                                {/* Total Leads */}
+                                <div className="text-center">
+                                    <span className="text-lg font-bold">{advisor.totalLeads}</span>
+                                </div>
+
+                                {/* Call List */}
+                                <div className="text-center">
+                                    <span className={`text-lg font-bold ${advisor.callListCount > 10
+                                            ? 'text-orange-400'
+                                            : advisor.callListCount > 0
+                                                ? 'text-yellow-400'
+                                                : 'text-gray-500'
+                                        }`}>
+                                        {advisor.callListCount}
+                                    </span>
+                                </div>
+
+                                {/* Contacted Today */}
+                                <div className="text-center">
+                                    <span className={`text-lg font-bold ${advisor.contactedToday > 0 ? 'text-green-400' : 'text-gray-500'
+                                        }`}>
+                                        {advisor.contactedToday}
+                                    </span>
+                                </div>
+
+                                {/* This Week */}
+                                <div className="text-center">
+                                    <span className={`text-lg font-bold ${advisor.contactedThisWeek > 0 ? 'text-blue-400' : 'text-gray-500'
+                                        }`}>
+                                        {advisor.contactedThisWeek}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </Card>
             )}
