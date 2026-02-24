@@ -98,7 +98,7 @@ export default function ReportsPage() {
                             <Users className="w-6 h-6 text-blue-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">{stats?.totalLeads || 0}</p>
+                            <p className="text-xl font-bold">{stats?.totalLeads || 0}</p>
                             <p className="text-sm text-gray-500">Total Leads</p>
                         </div>
                     </div>
@@ -109,7 +109,7 @@ export default function ReportsPage() {
                             <TrendingUp className="w-6 h-6 text-green-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">{stats?.closedLeads || 0}</p>
+                            <p className="text-xl font-bold">{stats?.closedLeads || 0}</p>
                             <p className="text-sm text-gray-500">Closed/Funded</p>
                         </div>
                     </div>
@@ -120,7 +120,7 @@ export default function ReportsPage() {
                             <Phone className="w-6 h-6 text-orange-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">{stats?.callListCount || 0}</p>
+                            <p className="text-xl font-bold">{stats?.callListCount || 0}</p>
                             <p className="text-sm text-gray-500">Needs Follow-up</p>
                         </div>
                     </div>
@@ -131,7 +131,7 @@ export default function ReportsPage() {
                             <BarChart3 className="w-6 h-6 text-purple-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold">{stats?.contactedToday || 0}</p>
+                            <p className="text-xl font-bold">{stats?.contactedToday || 0}</p>
                             <p className="text-sm text-gray-500">Contacted Today</p>
                         </div>
                     </div>

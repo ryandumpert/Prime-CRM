@@ -188,7 +188,7 @@ export default function CallListPage() {
                             {leads.map((lead, index) => (
                                 <div
                                     key={lead.id}
-                                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 p-4 hover:bg-[hsl(222,47%,12%)] active:bg-[hsl(222,47%,14%)] transition-colors cursor-pointer"
+                                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 p-5 hover:bg-[hsl(222,47%,12%)] active:bg-[hsl(222,47%,14%)] transition-colors cursor-pointer"
                                     onClick={() => router.push(`/leads/${lead.id}`)}
                                 >
                                     <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">

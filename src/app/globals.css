@@ -84,7 +84,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
@@ -277,15 +277,16 @@ body {
 
 .table th {
   text-align: left;
-  padding: 1rem;
+  padding: 0.875rem 1.25rem;
   font-weight: 600;
   color: hsl(215 20% 65%);
   background: hsl(222 47% 10%);
   border-bottom: 1px solid hsl(222 47% 18%);
+  white-space: nowrap;
 }
 
 .table td {
-  padding: 1rem;
+  padding: 0.875rem 1.25rem;
   border-bottom: 1px solid hsl(222 47% 15%);
 }
 
@@ -386,7 +387,7 @@ body {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 1.5rem;
   transition: all 0.2s ease;
 }
@@ -397,9 +398,9 @@ body {
 }
 
 .stat-value {
-  font-size: 1.875rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
   background: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(217 91% 70%) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -692,7 +693,7 @@ body {
 
   .table th,
   .table td {
-    padding: 0.625rem 0.5rem;
+    padding: 0.75rem;
   }
 
   .admin-mode-banner {

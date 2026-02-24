@@ -146,7 +146,7 @@ export default function DashboardPage() {
                     ) : (
                         <div className="space-y-3">
                             <p className="text-gray-400">
-                                <span className="text-2xl font-bold text-white">{stats?.callListCount}</span> leads need follow-up
+                                <span className="text-xl font-bold text-white">{stats?.callListCount}</span> leads need follow-up
                             </p>
                             <p className="text-sm text-gray-500">
                                 Leads not contacted in the last 5 days

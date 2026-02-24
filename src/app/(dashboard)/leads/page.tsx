@@ -399,7 +399,7 @@ export default function LeadsPage() {
                             {leads.map((lead) => (
                                 <div
                                     key={lead.id}
-                                    className="p-4 active:bg-[hsl(222,47%,14%)] transition-colors cursor-pointer"
+                                    className="p-5 active:bg-[hsl(222,47%,14%)] transition-colors cursor-pointer"
                                     onClick={() => router.push(`/leads/${lead.id}`)}
                                 >
                                     <div className="flex items-start justify-between mb-2">
@@ -465,7 +465,7 @@ export default function LeadsPage() {
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex items-center justify-between p-3 md:p-4 border-t border-[hsl(222,47%,15%)]">
+                        <div className="flex items-center justify-between p-4 md:p-5 border-t border-[hsl(222,47%,15%)]">
                             <p className="text-xs md:text-sm text-gray-500">
                                 <span className="hidden md:inline">Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total} leads</span>
                                 <span className="md:hidden">{total} leads</span>
