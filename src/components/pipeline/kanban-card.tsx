@@ -38,14 +38,6 @@ export function KanbanCard({ lead, onClick, isDragging, className }: KanbanCardP
         return `${days} days ago`;
     };
 
-    const handlePhoneClick = (e: React.MouseEvent) => {
-        if (lead.phonePrimary) {
-            e.stopPropagation();
-            // On mobile, this will open the native dialer
-            window.location.href = `tel:${lead.phonePrimary}`;
-        }
-    };
-
     return (
         <div
             onClick={() => onClick(lead)}
@@ -71,16 +63,12 @@ export function KanbanCard({ lead, onClick, isDragging, className }: KanbanCardP
                 )}
             </div>
 
-            {/* Phone */}
+            {/* Phone (display only — call/text actions are in the detail panel) */}
             {lead.phonePrimary && (
-                <a
-                    href={`tel:${lead.phonePrimary}`}
-                    onClick={handlePhoneClick}
-                    className="flex items-center gap-1.5 text-[13px] text-blue-400 hover:text-blue-300 mb-2 transition-colors"
-                >
+                <div className="flex items-center gap-1.5 text-[13px] text-gray-400 mb-2">
                     <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{formatPhoneDisplay(lead.phonePrimary)}</span>
-                </a>
+                </div>
             )}
 
             {/* Priority + last contacted */}
