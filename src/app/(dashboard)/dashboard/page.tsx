@@ -221,10 +221,10 @@ export default function DashboardPage() {
                                 {/* Call List */}
                                 <div className="text-center">
                                     <span className={`text-lg font-bold ${advisor.callListCount > 10
-                                            ? 'text-orange-400'
-                                            : advisor.callListCount > 0
-                                                ? 'text-yellow-400'
-                                                : 'text-gray-500'
+                                        ? 'text-orange-400'
+                                        : advisor.callListCount > 0
+                                            ? 'text-yellow-400'
+                                            : 'text-gray-500'
                                         }`}>
                                         {advisor.callListCount}
                                     </span>
@@ -257,13 +257,13 @@ export default function DashboardPage() {
 function StatCardContent({ stat }: { stat: any }) {
     const Icon = stat.icon;
     return (
-        <div className="flex items-start justify-between">
-            <div>
+        <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
                 <p className="stat-value">{stat.value}</p>
                 <p className="stat-label">{stat.label}</p>
             </div>
-            <div className={`p-3 rounded-xl ${stat.iconBg}`}>
-                <Icon className={`w-6 h-6 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`} style={{ color: stat.color.includes('blue') ? '#3b82f6' : stat.color.includes('orange') ? '#f97316' : stat.color.includes('green') ? '#22c55e' : '#a855f7' }} />
+            <div className={`p-2.5 rounded-xl ${stat.iconBg} shrink-0`}>
+                <Icon className="w-5 h-5" style={{ color: stat.color.includes('blue') ? '#3b82f6' : stat.color.includes('orange') ? '#f97316' : stat.color.includes('green') ? '#22c55e' : '#a855f7' }} />
             </div>
         </div>
     );
