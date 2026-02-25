@@ -42,7 +42,7 @@ export function KanbanCard({ lead, onClick, isDragging, className }: KanbanCardP
         <div
             onClick={() => onClick(lead)}
             className={cn(
-                'group glass-card p-4 cursor-pointer transition-all duration-200',
+                'group glass-card p-5 cursor-pointer transition-all duration-200',
                 'hover:border-[hsl(222,47%,25%)] hover:bg-[hsl(222,47%,12%)]',
                 'active:scale-[0.98] active:bg-[hsl(222,47%,14%)]',
                 'min-h-[72px]', // Touch target minimum

@@ -13,7 +13,7 @@ export function Card({ children, className, hover = false }: CardProps) {
     return (
         <div
             className={cn(
-                'glass-card p-5 md:p-7',
+                'glass-card p-6 md:p-8',
                 hover && 'glass-card-hover cursor-pointer',
                 className
             )}
