@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { PIPELINE_STATUSES, PipelineType, LeadStatusType } from '@/lib/constants';
 import { ColumnTabs } from './column-tabs';
 import { KanbanCard, KanbanLead } from './kanban-card';
+import { CardContextMenu } from './card-context-menu';
 import { Loader2 } from 'lucide-react';
 
 interface ColumnData {
@@ -16,6 +17,7 @@ interface KanbanBoardMobileProps {
     pipeline: PipelineType;
     columns: Record<string, ColumnData>;
     onCardClick: (lead: KanbanLead) => void;
+    onPipelineTransfer?: (leadId: string, targetPipeline: PipelineType) => void;
     isLoading?: boolean;
 }
 
@@ -23,10 +25,22 @@ export function KanbanBoardMobile({
     pipeline,
     columns,
     onCardClick,
+    onPipelineTransfer,
     isLoading,
 }: KanbanBoardMobileProps) {
     const statuses = PIPELINE_STATUSES[pipeline];
     const [activeTab, setActiveTab] = useState<LeadStatusType>(statuses[0]);
+
+    // Context menu state
+    const [contextMenu, setContextMenu] = useState<{
+        isOpen: boolean;
+        position: { x: number; y: number };
+        leadId: string;
+    }>({
+        isOpen: false,
+        position: { x: 0, y: 0 },
+        leadId: '',
+    });
 
     // Ensure active tab is valid for this pipeline
     const currentTab = statuses.includes(activeTab) ? activeTab : statuses[0];
@@ -37,6 +51,25 @@ export function KanbanBoardMobile({
     }
 
     const currentColumn = columns[currentTab] || { leads: [], count: 0, hasMore: false };
+
+    const handleCardContextMenu = useCallback((e: React.MouseEvent, lead: KanbanLead) => {
+        e.preventDefault();
+        setContextMenu({
+            isOpen: true,
+            position: { x: e.clientX, y: e.clientY },
+            leadId: lead.id,
+        });
+    }, []);
+
+    const handleContextMenuClose = useCallback(() => {
+        setContextMenu((prev) => ({ ...prev, isOpen: false }));
+    }, []);
+
+    const handleContextMenuTransfer = useCallback((leadId: string, targetPipeline: PipelineType) => {
+        if (onPipelineTransfer) {
+            onPipelineTransfer(leadId, targetPipeline);
+        }
+    }, [onPipelineTransfer]);
 
     return (
         <div className="flex flex-col h-full">
@@ -68,6 +101,7 @@ export function KanbanBoardMobile({
                                 key={lead.id}
                                 lead={lead}
                                 onClick={onCardClick}
+                                onContextMenu={handleCardContextMenu}
                             />
                         ))}
                         {currentColumn.hasMore && (
@@ -80,6 +114,16 @@ export function KanbanBoardMobile({
                     </>
                 )}
             </div>
+
+            {/* Context menu for pipeline transfers */}
+            <CardContextMenu
+                isOpen={contextMenu.isOpen}
+                position={contextMenu.position}
+                currentPipeline={pipeline}
+                leadId={contextMenu.leadId}
+                onTransfer={handleContextMenuTransfer}
+                onClose={handleContextMenuClose}
+            />
         </div>
     );
 }

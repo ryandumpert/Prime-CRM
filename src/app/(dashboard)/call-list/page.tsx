@@ -15,7 +15,10 @@ import {
     CheckCircle,
     XCircle,
     AlertTriangle,
-    RefreshCw
+    RefreshCw,
+    FileText,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
 import {
@@ -24,6 +27,8 @@ import {
     CALL_OUTCOMES,
     OUTCOME_LABELS
 } from '@/lib/constants';
+import { NoteInput } from '@/components/notes/note-input';
+import { NotesFeed } from '@/components/notes/notes-feed';
 
 interface Lead {
     id: string;
@@ -49,6 +54,7 @@ export default function CallListPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isSessionMode, setIsSessionMode] = useState(false);
     const [showOutcomeModal, setShowOutcomeModal] = useState(false);
+    const [noteRefreshKey, setNoteRefreshKey] = useState(0);
 
     const fetchCallList = useCallback(async () => {
         setIsLoading(true);
@@ -168,6 +174,8 @@ export default function CallListPage() {
                     onSkip={handleNextLead}
                     onExit={() => setIsSessionMode(false)}
                     onViewDetails={() => router.push(`/leads/${currentLead.id}`)}
+                    noteRefreshKey={noteRefreshKey}
+                    onNoteSaved={() => setNoteRefreshKey(k => k + 1)}
                 />
             ) : (
                 // List Mode
@@ -264,6 +272,8 @@ function CallSessionView({
     onSkip,
     onExit,
     onViewDetails,
+    noteRefreshKey,
+    onNoteSaved,
 }: {
     lead: Lead;
     currentIndex: number;
@@ -272,7 +282,10 @@ function CallSessionView({
     onSkip: () => void;
     onExit: () => void;
     onViewDetails: () => void;
+    noteRefreshKey: number;
+    onNoteSaved: () => void;
 }) {
+    const [showNotes, setShowNotes] = useState(true);
     const getDisplayName = () => {
         if (lead.fullName) return lead.fullName;
         if (lead.firstName || lead.lastName) {
@@ -328,6 +341,38 @@ function CallSessionView({
                             }
                         </p>
                     </div>
+                </div>
+
+                {/* Notes Section */}
+                <div className="mb-6">
+                    <button
+                        onClick={() => setShowNotes(!showNotes)}
+                        className="flex items-center gap-2 w-full mb-3 text-left"
+                    >
+                        <FileText className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Call Notes</span>
+                        {showNotes ? (
+                            <ChevronUp className="w-3.5 h-3.5 text-gray-500 ml-auto" />
+                        ) : (
+                            <ChevronDown className="w-3.5 h-3.5 text-gray-500 ml-auto" />
+                        )}
+                    </button>
+                    {showNotes && (
+                        <>
+                            <NotesFeed
+                                leadId={lead.id}
+                                limit={3}
+                                refreshKey={noteRefreshKey}
+                            />
+                            <div className="mt-3">
+                                <NoteInput
+                                    leadId={lead.id}
+                                    placeholder="Add a call note..."
+                                    onNoteSaved={onNoteSaved}
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Compliance warnings */}

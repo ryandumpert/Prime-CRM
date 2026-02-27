@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { formatPhoneDisplay, daysSinceContact } from '@/lib/utils';
 import { PriorityBadge } from '@/components/ui';
-import { Phone, Clock } from 'lucide-react';
+import { Phone, Clock, FileText } from 'lucide-react';
 
 export interface KanbanLead {
     id: string;
@@ -17,17 +17,20 @@ export interface KanbanLead {
     lastContactedAt: string | null;
     statusUpdatedAt: string | null;
     pipeline: string;
+    latestNote: string | null;
+    nextActionAt: string | null;
     assignedAdvisor: { id: string; displayName: string } | null;
 }
 
 interface KanbanCardProps {
     lead: KanbanLead;
     onClick: (lead: KanbanLead) => void;
+    onContextMenu?: (e: React.MouseEvent, lead: KanbanLead) => void;
     isDragging?: boolean;
     className?: string;
 }
 
-export function KanbanCard({ lead, onClick, isDragging, className }: KanbanCardProps) {
+export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className }: KanbanCardProps) {
     const displayName = lead.fullName || [lead.firstName, lead.lastName].filter(Boolean).join(' ') || 'Unknown';
 
     const getDaysText = () => {
@@ -41,6 +44,12 @@ export function KanbanCard({ lead, onClick, isDragging, className }: KanbanCardP
     return (
         <div
             onClick={() => onClick(lead)}
+            onContextMenu={(e) => {
+                if (onContextMenu) {
+                    e.preventDefault();
+                    onContextMenu(e, lead);
+                }
+            }}
             className={cn(
                 'group glass-card p-5 cursor-pointer transition-all duration-200',
                 'hover:border-[hsl(222,47%,25%)] hover:bg-[hsl(222,47%,12%)]',
@@ -68,6 +77,14 @@ export function KanbanCard({ lead, onClick, isDragging, className }: KanbanCardP
                 <div className="flex items-center gap-1.5 text-[13px] text-gray-400 mb-2">
                     <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{formatPhoneDisplay(lead.phonePrimary)}</span>
+                </div>
+            )}
+
+            {/* Latest note preview */}
+            {lead.latestNote && (
+                <div className="flex items-start gap-1.5 text-[12px] text-gray-500 mb-2">
+                    <FileText className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                    <span className="line-clamp-1 italic">{lead.latestNote}</span>
                 </div>
             )}
 

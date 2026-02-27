@@ -17,6 +17,7 @@ interface KanbanBoardProps {
     columns: Record<string, ColumnData>;
     onCardClick: (lead: KanbanLead) => void;
     onCardMove: (leadId: string, newStatus: LeadStatusType) => void;
+    onPipelineTransfer?: (leadId: string, targetPipeline: PipelineType) => void;
     isLoading?: boolean;
 }
 
@@ -25,6 +26,7 @@ export function KanbanBoard({
     columns,
     onCardClick,
     onCardMove,
+    onPipelineTransfer,
     isLoading,
 }: KanbanBoardProps) {
     const [isMobile, setIsMobile] = useState(false);
@@ -53,6 +55,7 @@ export function KanbanBoard({
                 pipeline={pipeline}
                 columns={columns}
                 onCardClick={onCardClick}
+                onPipelineTransfer={onPipelineTransfer}
                 isLoading={isLoading}
             />
         );
@@ -64,6 +67,7 @@ export function KanbanBoard({
             columns={columns}
             onCardClick={onCardClick}
             onCardMove={onCardMove}
+            onPipelineTransfer={onPipelineTransfer}
         />
     );
 }

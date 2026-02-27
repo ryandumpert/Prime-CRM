@@ -6,7 +6,11 @@ import { cn } from '@/lib/utils';
 import { STATUS_LABELS, PIPELINE_COLORS, PipelineType, LeadStatusType } from '@/lib/constants';
 import { KanbanCard, KanbanLead } from './kanban-card';
 
-function DraggableCard({ lead, onCardClick }: { lead: KanbanLead; onCardClick: (lead: KanbanLead) => void }) {
+function DraggableCard({ lead, onCardClick, onCardContextMenu }: {
+    lead: KanbanLead;
+    onCardClick: (lead: KanbanLead) => void;
+    onCardContextMenu?: (e: React.MouseEvent, lead: KanbanLead) => void;
+}) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: lead.id,
     });
@@ -17,7 +21,7 @@ function DraggableCard({ lead, onCardClick }: { lead: KanbanLead; onCardClick: (
 
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-            <KanbanCard lead={lead} onClick={onCardClick} isDragging={isDragging} />
+            <KanbanCard lead={lead} onClick={onCardClick} onContextMenu={onCardContextMenu} isDragging={isDragging} />
         </div>
     );
 }
@@ -29,6 +33,7 @@ interface KanbanColumnProps {
     hasMore: boolean;
     pipeline: PipelineType;
     onCardClick: (lead: KanbanLead) => void;
+    onCardContextMenu?: (e: React.MouseEvent, lead: KanbanLead) => void;
 }
 
 export function KanbanColumn({
@@ -38,6 +43,7 @@ export function KanbanColumn({
     hasMore,
     pipeline,
     onCardClick,
+    onCardContextMenu,
 }: KanbanColumnProps) {
     const { setNodeRef, isOver } = useDroppable({ id: status });
     const colors = PIPELINE_COLORS[pipeline];
@@ -87,6 +93,7 @@ export function KanbanColumn({
                             key={lead.id}
                             lead={lead}
                             onCardClick={onCardClick}
+                            onCardContextMenu={onCardContextMenu}
                         />
                     ))
                 )}
@@ -101,4 +108,3 @@ export function KanbanColumn({
         </div>
     );
 }
-

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout';
-import { Card, StatusBadge } from '@/components/ui';
+import { Card, StatusBadge, PriorityBadge } from '@/components/ui';
 import {
     Users,
     PhoneCall,
@@ -11,10 +12,13 @@ import {
     TrendingUp,
     Clock,
     ArrowRight,
-    Loader2
+    Loader2,
+    CalendarDays,
+    Phone
 } from 'lucide-react';
 import Link from 'next/link';
-import { STATUS_LABELS, LeadStatusType } from '@/lib/constants';
+import { STATUS_LABELS, LeadStatusType, PriorityType, PIPELINE_LABELS, PipelineType } from '@/lib/constants';
+import { formatPhoneDisplay } from '@/lib/utils';
 
 interface DashboardStats {
     totalLeads: number;
@@ -34,14 +38,31 @@ interface DashboardStats {
     }>;
 }
 
+interface ScheduleLead {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    fullName: string | null;
+    phonePrimary: string | null;
+    status: LeadStatusType;
+    priority: PriorityType;
+    nextActionAt: string;
+    lastContactedAt: string | null;
+    pipeline: PipelineType;
+    assignedAdvisor: { id: string; displayName: string } | null;
+}
+
 export default function DashboardPage() {
     const { data: session } = useSession();
+    const router = useRouter();
     const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [schedule, setSchedule] = useState<ScheduleLead[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const isAdmin = session?.user?.role === 'admin';
 
     useEffect(() => {
         fetchStats();
+        fetchSchedule();
     }, []);
 
     const fetchStats = async () => {
@@ -56,6 +77,59 @@ export default function DashboardPage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const fetchSchedule = async () => {
+        try {
+            const res = await fetch('/api/dashboard/schedule');
+            const data = await res.json();
+            if (data.data) {
+                setSchedule(data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching schedule:', error);
+        }
+    };
+
+    // Build 5-day schedule buckets
+    const getScheduleDays = () => {
+        const days: { date: Date; label: string; shortDay: string; leads: ScheduleLead[] }[] = [];
+        const now = new Date();
+
+        for (let i = 0; i < 5; i++) {
+            const d = new Date(now);
+            d.setDate(d.getDate() + i);
+            d.setHours(0, 0, 0, 0);
+
+            const nextDay = new Date(d);
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            const dayLeads = schedule.filter(lead => {
+                const actionDate = new Date(lead.nextActionAt);
+                return actionDate >= d && actionDate < nextDay;
+            });
+
+            const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short' });
+            const shortDay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+            days.push({ date: d, label, shortDay, leads: dayLeads });
+        }
+        return days;
+    };
+
+    const getLeadName = (lead: ScheduleLead) => {
+        if (lead.fullName) return lead.fullName;
+        if (lead.firstName || lead.lastName) return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
+        return 'Unknown';
+    };
+
+    const getActionTime = (nextActionAt: string) => {
+        const d = new Date(nextActionAt);
+        const h = d.getHours();
+        const m = d.getMinutes();
+        // If time is midnight (00:00), it's a date-only entry
+        if (h === 0 && m === 0) return 'All day';
+        return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     };
 
     if (isLoading) {
@@ -183,6 +257,97 @@ export default function DashboardPage() {
                     )}
                 </Card>
             </div>
+
+            {/* 5-Day Follow-Up Schedule */}
+            <Card className="mb-6">
+                <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-indigo-500/20">
+                            <CalendarDays className="w-5 h-5 text-indigo-400" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold">5-Day Follow-Up Schedule</h3>
+                            <p className="text-sm text-gray-500">Upcoming calls based on scheduled follow-up dates</p>
+                        </div>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                        {schedule.length} {schedule.length === 1 ? 'lead' : 'leads'} scheduled
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    {getScheduleDays().map((day, dayIndex) => {
+                        const isToday = dayIndex === 0;
+                        return (
+                            <div
+                                key={day.shortDay}
+                                className={`rounded-xl border transition-colors ${isToday
+                                        ? 'border-indigo-500/40 bg-indigo-500/5'
+                                        : 'border-[hsl(222,47%,18%)] bg-[hsl(222,47%,9%)]'
+                                    }`}
+                            >
+                                {/* Day header */}
+                                <div className={`px-4 py-3 border-b ${isToday ? 'border-indigo-500/30' : 'border-[hsl(222,47%,18%)]'
+                                    }`}>
+                                    <div className="flex items-center justify-between">
+                                        <span className={`font-semibold text-sm ${isToday ? 'text-indigo-300' : 'text-gray-300'
+                                            }`}>
+                                            {day.label}
+                                        </span>
+                                        {day.leads.length > 0 && (
+                                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${isToday
+                                                    ? 'bg-indigo-500/20 text-indigo-300'
+                                                    : 'bg-[hsl(222,47%,18%)] text-gray-400'
+                                                }`}>
+                                                {day.leads.length}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="text-xs text-gray-500">{day.shortDay}</span>
+                                </div>
+
+                                {/* Lead cards */}
+                                <div className="p-2 space-y-2 min-h-[80px]">
+                                    {day.leads.length === 0 ? (
+                                        <div className="flex items-center justify-center h-[64px] text-gray-600">
+                                            <p className="text-xs text-center">No calls<br />scheduled</p>
+                                        </div>
+                                    ) : (
+                                        day.leads.map(lead => (
+                                            <div
+                                                key={lead.id}
+                                                className="p-3 rounded-lg bg-[hsl(222,47%,12%)] hover:bg-[hsl(222,47%,15%)] border border-[hsl(222,47%,18%)] hover:border-[hsl(222,47%,22%)] transition-all cursor-pointer group"
+                                                onClick={() => router.push(`/leads/${lead.id}`)}
+                                            >
+                                                <div className="flex items-start justify-between gap-2 mb-2">
+                                                    <span className="font-medium text-sm text-white truncate leading-tight">
+                                                        {getLeadName(lead)}
+                                                    </span>
+                                                    <div className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${lead.priority === 'high' ? 'bg-red-500' :
+                                                            lead.priority === 'normal' ? 'bg-blue-500' : 'bg-gray-500'
+                                                        }`} />
+                                                </div>
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <StatusBadge status={lead.status} size="sm" />
+                                                    <span className="text-[11px] text-gray-500 whitespace-nowrap">
+                                                        {getActionTime(lead.nextActionAt)}
+                                                    </span>
+                                                </div>
+                                                {lead.phonePrimary && (
+                                                    <div className="flex items-center gap-1.5 mt-2 text-gray-500 group-hover:text-gray-400 transition-colors">
+                                                        <Phone className="w-3 h-3" />
+                                                        <span className="text-xs">{formatPhoneDisplay(lead.phonePrimary)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </Card>
 
             {/* Advisor Stats (Admin Only) */}
             {isAdmin && stats?.advisorStats && stats.advisorStats.length > 0 && (

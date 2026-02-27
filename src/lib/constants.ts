@@ -240,7 +240,7 @@ export const PIPELINE_STATUSES: Record<PipelineType, LeadStatusType[]> = {
 export const PIPELINE_TRANSFERS: Record<PipelineType, PipelineType[]> = {
     cold_leads: ['warm_leads'],
     warm_leads: ['cold_leads', 'processing'],
-    processing: [],
+    processing: ['warm_leads', 'cold_leads'],
 };
 
 // Default status when transferring INTO a pipeline

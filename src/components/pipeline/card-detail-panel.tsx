@@ -12,6 +12,9 @@ import {
     ExternalLink,
     Clock,
     User,
+    FileText,
+    CalendarDays,
+    Check,
 } from 'lucide-react';
 import {
     STATUS_LABELS,
@@ -24,6 +27,8 @@ import {
     LeadStatusType,
 } from '@/lib/constants';
 import { KanbanLead } from './kanban-card';
+import { NoteInput } from '@/components/notes/note-input';
+import { NotesFeed } from '@/components/notes/notes-feed';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -44,6 +49,23 @@ export function CardDetailPanel({
 }: CardDetailPanelProps) {
     const router = useRouter();
     const [isMobile, setIsMobile] = useState(false);
+    const [noteRefreshKey, setNoteRefreshKey] = useState(0);
+    const [nextActionDate, setNextActionDate] = useState('');
+    const [isSavingDate, setIsSavingDate] = useState(false);
+    const [dateSaved, setDateSaved] = useState(false);
+
+    // Sync nextActionDate state with lead data when lead changes
+    useEffect(() => {
+        if (lead?.nextActionAt) {
+            // Format for datetime-local input
+            const d = new Date(lead.nextActionAt);
+            const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+            setNextActionDate(local.toISOString().slice(0, 16));
+        } else {
+            setNextActionDate('');
+        }
+        setDateSaved(false);
+    }, [lead?.id, lead?.nextActionAt]);
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -83,6 +105,27 @@ export function CardDetailPanel({
         if (days === 0) return 'Today';
         if (days === 1) return '1 day ago';
         return `${days} days ago`;
+    };
+
+    const handleSaveNextAction = async (value: string) => {
+        if (!lead) return;
+        setIsSavingDate(true);
+        setDateSaved(false);
+        try {
+            await fetch(`/api/leads/${lead.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nextActionAt: value ? new Date(value).toISOString() : null,
+                }),
+            });
+            setDateSaved(true);
+            setTimeout(() => setDateSaved(false), 2000);
+        } catch (error) {
+            console.error('Error saving next action date:', error);
+        } finally {
+            setIsSavingDate(false);
+        }
     };
 
     // ── Mobile: Bottom Sheet ──
@@ -181,11 +224,60 @@ export function CardDetailPanel({
                                     <span className="text-gray-300">{lead.assignedAdvisor.displayName}</span>
                                 </div>
                             )}
+                            {/* Next Action Date */}
+                            <div className="pt-2 border-t border-[hsl(222,47%,16%)]">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <CalendarDays className="w-3.5 h-3.5 text-gray-500" />
+                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Follow-up Date</span>
+                                    {dateSaved && <Check className="w-3 h-3 text-green-400" />}
+                                </div>
+                                <input
+                                    type="datetime-local"
+                                    value={nextActionDate}
+                                    onChange={(e) => {
+                                        setNextActionDate(e.target.value);
+                                        handleSaveNextAction(e.target.value);
+                                    }}
+                                    className="w-full px-3 py-2.5 rounded-lg bg-[hsl(222,47%,14%)] border border-[hsl(222,47%,20%)] text-sm text-gray-300 outline-none focus:border-blue-500/50 transition-colors min-h-[44px]"
+                                />
+                                {nextActionDate && (
+                                    <button
+                                        onClick={() => {
+                                            setNextActionDate('');
+                                            handleSaveNextAction('');
+                                        }}
+                                        className="text-xs text-gray-500 hover:text-gray-300 mt-1.5 transition-colors"
+                                    >
+                                        Clear date
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-3 mb-4">
                             <StatusBadge status={status} />
                             <PriorityBadge priority={lead.priority} />
+                        </div>
+
+                        {/* Notes Section */}
+                        <div className="mb-5">
+                            <div className="flex items-center gap-2 mb-3">
+                                <FileText className="w-4 h-4 text-gray-500" />
+                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Notes</p>
+                            </div>
+                            <NotesFeed
+                                leadId={lead.id}
+                                limit={3}
+                                compact
+                                refreshKey={noteRefreshKey}
+                            />
+                            <div className="mt-3">
+                                <NoteInput
+                                    leadId={lead.id}
+                                    compact
+                                    onNoteSaved={() => setNoteRefreshKey(k => k + 1)}
+                                />
+                            </div>
                         </div>
 
                         {/* Move to status */}
@@ -340,11 +432,60 @@ export function CardDetailPanel({
                                 <span className="text-gray-300">{lead.assignedAdvisor.displayName}</span>
                             </div>
                         )}
+                        {/* Next Action Date */}
+                        <div className="pt-3 border-t border-[hsl(222,47%,15%)]">
+                            <div className="flex items-center gap-2 mb-2">
+                                <CalendarDays className="w-4 h-4 text-gray-500" />
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Follow-up Date</span>
+                                {dateSaved && <Check className="w-3.5 h-3.5 text-green-400" />}
+                            </div>
+                            <input
+                                type="datetime-local"
+                                value={nextActionDate}
+                                onChange={(e) => {
+                                    setNextActionDate(e.target.value);
+                                    handleSaveNextAction(e.target.value);
+                                }}
+                                className="w-full px-3 py-2 rounded-lg bg-[hsl(222,47%,14%)] border border-[hsl(222,47%,20%)] text-sm text-gray-300 outline-none focus:border-blue-500/50 transition-colors"
+                            />
+                            {nextActionDate && (
+                                <button
+                                    onClick={() => {
+                                        setNextActionDate('');
+                                        handleSaveNextAction('');
+                                    }}
+                                    className="text-xs text-gray-500 hover:text-gray-300 mt-1.5 transition-colors"
+                                >
+                                    Clear date
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                         <StatusBadge status={status} />
                         <PriorityBadge priority={lead.priority} />
+                    </div>
+
+                    {/* Notes Section */}
+                    <div>
+                        <div className="flex items-center gap-2 mb-3">
+                            <FileText className="w-4 h-4 text-gray-500" />
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Notes</p>
+                        </div>
+                        <NotesFeed
+                            leadId={lead.id}
+                            limit={3}
+                            compact
+                            refreshKey={noteRefreshKey}
+                        />
+                        <div className="mt-3">
+                            <NoteInput
+                                leadId={lead.id}
+                                compact
+                                onNoteSaved={() => setNoteRefreshKey(k => k + 1)}
+                            />
+                        </div>
                     </div>
 
                     {/* Status change */}

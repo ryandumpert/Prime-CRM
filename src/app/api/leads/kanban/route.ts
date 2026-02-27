@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
                     priority: true,
                     lastContactedAt: true,
                     statusUpdatedAt: true,
+                    nextActionAt: true,
                     pipeline: true,
                     assignedAdvisor: {
                         select: {
@@ -68,6 +69,23 @@ export async function GET(request: NextRequest) {
                 take: limit,
             });
 
+            // Fetch latest note for each lead (for card preview)
+            const leadsWithNotes = await Promise.all(
+                leads.map(async (lead) => {
+                    const latestNote = await prisma.interaction.findFirst({
+                        where: { leadId: lead.id, type: 'note' },
+                        select: { summary: true, body: true, occurredAt: true },
+                        orderBy: { occurredAt: 'desc' },
+                    });
+                    return {
+                        ...lead,
+                        latestNote: latestNote
+                            ? (latestNote.body || latestNote.summary || '').slice(0, 80)
+                            : null,
+                    };
+                })
+            );
+
             const count = await prisma.lead.count({
                 where: {
                     ...baseWhere,
@@ -77,7 +95,7 @@ export async function GET(request: NextRequest) {
 
             return {
                 status,
-                leads,
+                leads: leadsWithNotes,
                 count,
                 hasMore: count > limit,
             };

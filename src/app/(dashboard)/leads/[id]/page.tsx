@@ -21,7 +21,8 @@ import {
     ChevronDown,
     Plus,
     Ban,
-    Archive
+    Archive,
+    Activity
 } from 'lucide-react';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
 import {
@@ -35,6 +36,8 @@ import {
     EMAIL_OUTCOMES,
     OUTCOME_LABELS
 } from '@/lib/constants';
+import { NoteInput } from '@/components/notes/note-input';
+import { NotesFeed } from '@/components/notes/notes-feed';
 
 interface Lead {
     id: string;
@@ -80,6 +83,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
     const [isSaving, setIsSaving] = useState(false);
     const [showInteractionModal, setShowInteractionModal] = useState(false);
     const [interactionType, setInteractionType] = useState<'call' | 'text' | 'email' | 'note'>('note');
+    const [activeTab, setActiveTab] = useState<'notes' | 'activity'>('notes');
+    const [noteRefreshKey, setNoteRefreshKey] = useState(0);
 
     const isAdmin = session?.user?.role === 'admin';
 
@@ -402,20 +407,69 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 </Card>
             </div>
 
-            {/* Timeline */}
+            {/* Notes & Activity Tabs */}
             <Card>
-                <h3 className="font-semibold mb-4">Activity Timeline</h3>
-                {lead.interactions.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                        <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>No interactions yet</p>
-                        <p className="text-sm">Contact this lead to start the timeline</p>
+                {/* Tab Header */}
+                <div className="flex items-center gap-1 p-1 mb-5 bg-[hsl(222,47%,10%)] rounded-xl w-fit">
+                    <button
+                        onClick={() => setActiveTab('notes')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'notes'
+                                ? 'bg-[hsl(222,47%,16%)] text-white shadow-sm'
+                                : 'text-gray-500 hover:text-gray-300'
+                            }`}
+                    >
+                        <FileText className="w-4 h-4" />
+                        Notes
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('activity')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'activity'
+                                ? 'bg-[hsl(222,47%,16%)] text-white shadow-sm'
+                                : 'text-gray-500 hover:text-gray-300'
+                            }`}
+                    >
+                        <Activity className="w-4 h-4" />
+                        All Activity
+                    </button>
+                </div>
+
+                {activeTab === 'notes' ? (
+                    /* Notes Tab */
+                    <div>
+                        <div className="mb-4">
+                            <NoteInput
+                                leadId={lead.id}
+                                placeholder="Write a note about this lead..."
+                                onNoteSaved={() => {
+                                    setNoteRefreshKey(k => k + 1);
+                                    fetchLead();
+                                }}
+                            />
+                        </div>
+                        <NotesFeed
+                            leadId={lead.id}
+                            limit={0}
+                            showSeeAll={false}
+                            refreshKey={noteRefreshKey}
+                        />
                     </div>
                 ) : (
-                    <div className="timeline">
-                        {lead.interactions.map((interaction) => (
-                            <TimelineItem key={interaction.id} interaction={interaction} />
-                        ))}
+                    /* Activity Tab */
+                    <div>
+                        <h3 className="font-semibold mb-4">Activity Timeline</h3>
+                        {lead.interactions.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                                <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                <p>No interactions yet</p>
+                                <p className="text-sm">Contact this lead to start the timeline</p>
+                            </div>
+                        ) : (
+                            <div className="timeline">
+                                {lead.interactions.map((interaction) => (
+                                    <TimelineItem key={interaction.id} interaction={interaction} />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
             </Card>

@@ -59,6 +59,13 @@ export default function PipelinePage() {
     };
 
     const handleCardMove = async (leadId: string, newStatus: LeadStatusType) => {
+        // AUTO-TRANSFER: When a card in cold_leads is moved to CONTACTED,
+        // automatically transfer it to the warm_leads pipeline.
+        if (pipeline === 'cold_leads' && newStatus === 'CONTACTED') {
+            await handlePipelineTransfer(leadId, 'warm_leads');
+            return;
+        }
+
         // Optimistic update: move card in local state immediately
         setColumns((prev) => {
             const updated = { ...prev };
@@ -143,12 +150,13 @@ export default function PipelinePage() {
         setIsDetailOpen(false);
         setSelectedLead(null);
 
-        // API call
+        // API call — send both pipeline and status (entry status for the target pipeline)
         try {
+            const entryStatus = PIPELINE_ENTRY_STATUS[newPipeline];
             const res = await fetch(`/api/leads/${leadId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pipeline: newPipeline }),
+                body: JSON.stringify({ pipeline: newPipeline, status: entryStatus }),
             });
 
             if (!res.ok) {
@@ -189,6 +197,7 @@ export default function PipelinePage() {
                             columns={columns}
                             onCardClick={handleCardClick}
                             onCardMove={handleCardMove}
+                            onPipelineTransfer={handlePipelineTransfer}
                             isLoading={isLoading}
                         />
                     </div>

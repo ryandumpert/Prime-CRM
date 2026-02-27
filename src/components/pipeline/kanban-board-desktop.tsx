@@ -1,10 +1,11 @@
 'use client';
 
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, DragOverlay, DragStartEvent } from '@dnd-kit/core';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { PIPELINE_STATUSES, PipelineType, LeadStatusType } from '@/lib/constants';
 import { KanbanColumn } from './kanban-column';
 import { KanbanCard, KanbanLead } from './kanban-card';
+import { CardContextMenu } from './card-context-menu';
 
 interface ColumnData {
     leads: KanbanLead[];
@@ -17,6 +18,7 @@ interface KanbanBoardDesktopProps {
     columns: Record<string, ColumnData>;
     onCardClick: (lead: KanbanLead) => void;
     onCardMove: (leadId: string, newStatus: LeadStatusType) => void;
+    onPipelineTransfer?: (leadId: string, targetPipeline: PipelineType) => void;
 }
 
 export function KanbanBoardDesktop({
@@ -24,8 +26,20 @@ export function KanbanBoardDesktop({
     columns,
     onCardClick,
     onCardMove,
+    onPipelineTransfer,
 }: KanbanBoardDesktopProps) {
     const [activeLead, setActiveLead] = useState<KanbanLead | null>(null);
+
+    // Context menu state
+    const [contextMenu, setContextMenu] = useState<{
+        isOpen: boolean;
+        position: { x: number; y: number };
+        leadId: string;
+    }>({
+        isOpen: false,
+        position: { x: 0, y: 0 },
+        leadId: '',
+    });
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -72,41 +86,73 @@ export function KanbanBoardDesktop({
         }
     };
 
-    return (
-        <DndContext
-            sensors={sensors}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-        >
-            <div className="flex gap-4 overflow-x-auto pb-4 h-full">
-                {statuses.map((status) => {
-                    const col = columns[status] || { leads: [], count: 0, hasMore: false };
-                    return (
-                        <KanbanColumn
-                            key={status}
-                            status={status}
-                            leads={col.leads}
-                            count={col.count}
-                            hasMore={col.hasMore}
-                            pipeline={pipeline}
-                            onCardClick={onCardClick}
-                        />
-                    );
-                })}
-            </div>
+    const handleCardContextMenu = useCallback((e: React.MouseEvent, lead: KanbanLead) => {
+        e.preventDefault();
+        setContextMenu({
+            isOpen: true,
+            position: { x: e.clientX, y: e.clientY },
+            leadId: lead.id,
+        });
+    }, []);
 
-            {/* Drag overlay - shows a floating card when dragging */}
-            <DragOverlay dropAnimation={null}>
-                {activeLead ? (
-                    <div className="w-[280px]">
-                        <KanbanCard
-                            lead={activeLead}
-                            onClick={() => { }}
-                            isDragging
-                        />
-                    </div>
-                ) : null}
-            </DragOverlay>
-        </DndContext>
+    const handleContextMenuClose = useCallback(() => {
+        setContextMenu((prev) => ({ ...prev, isOpen: false }));
+    }, []);
+
+    const handleContextMenuTransfer = useCallback((leadId: string, targetPipeline: PipelineType) => {
+        if (onPipelineTransfer) {
+            onPipelineTransfer(leadId, targetPipeline);
+        }
+    }, [onPipelineTransfer]);
+
+    return (
+        <>
+            <DndContext
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <div className="flex gap-4 overflow-x-auto pb-4 h-full">
+                    {statuses.map((status) => {
+                        const col = columns[status] || { leads: [], count: 0, hasMore: false };
+                        return (
+                            <KanbanColumn
+                                key={status}
+                                status={status}
+                                leads={col.leads}
+                                count={col.count}
+                                hasMore={col.hasMore}
+                                pipeline={pipeline}
+                                onCardClick={onCardClick}
+                                onCardContextMenu={handleCardContextMenu}
+                            />
+                        );
+                    })}
+                </div>
+
+                {/* Drag overlay - shows a floating card when dragging */}
+                <DragOverlay dropAnimation={null}>
+                    {activeLead ? (
+                        <div className="w-[280px]">
+                            <KanbanCard
+                                lead={activeLead}
+                                onClick={() => { }}
+                                isDragging
+                            />
+                        </div>
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
+
+            {/* Context menu for pipeline transfers */}
+            <CardContextMenu
+                isOpen={contextMenu.isOpen}
+                position={contextMenu.position}
+                currentPipeline={pipeline}
+                leadId={contextMenu.leadId}
+                onTransfer={handleContextMenuTransfer}
+                onClose={handleContextMenuClose}
+            />
+        </>
     );
 }

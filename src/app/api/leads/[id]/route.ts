@@ -104,12 +104,14 @@ export async function PATCH(
                 return NextResponse.json({ error: 'Cannot change status from terminal state' }, { status: 400 });
             }
 
-            // Allow within-pipeline moves (Kanban drag-and-drop) OR valid forward transitions
-            const leadPipeline = existingLead.pipeline as PipelineType;
-            const isWithinPipelineMove = isStatusValidForPipeline(existingLead.status as LeadStatusType, leadPipeline)
-                && isStatusValidForPipeline(status, leadPipeline);
+            // If a pipeline transfer is also happening, validate against the target pipeline
+            const isPipelineTransfer = pipeline !== undefined && pipeline !== existingLead.pipeline && PIPELINES.includes(pipeline);
+            const effectivePipeline = isPipelineTransfer ? (pipeline as PipelineType) : (existingLead.pipeline as PipelineType);
 
-            if (!isAdmin && !isWithinPipelineMove && !isValidTransition(existingLead.status as LeadStatusType, status)) {
+            // Allow within-pipeline moves (Kanban drag-and-drop) OR valid forward transitions
+            const isWithinPipelineMove = isStatusValidForPipeline(status, effectivePipeline);
+
+            if (!isAdmin && !isPipelineTransfer && !isWithinPipelineMove && !isValidTransition(existingLead.status as LeadStatusType, status)) {
                 return NextResponse.json({ error: 'Invalid status transition' }, { status: 400 });
             }
         }
