@@ -91,7 +91,7 @@ export function KanbanBoardMobile({
                         <Loader2 className="w-7 h-7 animate-spin text-blue-500" />
                     </div>
                 ) : currentColumn.leads.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                    <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                         <p className="text-sm">No leads in this column</p>
                     </div>
                 ) : (
@@ -106,7 +106,7 @@ export function KanbanBoardMobile({
                         ))}
                         {currentColumn.hasMore && (
                             <div className="text-center py-3">
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-400">
                                     Showing {currentColumn.leads.length} of {currentColumn.count} leads
                                 </span>
                             </div>

@@ -4,7 +4,7 @@ import { useEffect, useState, use } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout';
-import { Button, Card, StatusBadge, PriorityBadge, Select, Input, Modal } from '@/components/ui';
+import { Button, Card, StatusBadge, PriorityBadge, Select, Input, Modal, DateTimePicker } from '@/components/ui';
 import {
     Phone,
     Mail,
@@ -160,7 +160,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
     if (!lead) {
         return (
             <div className="text-center py-16">
-                <p className="text-gray-400">Lead not found</p>
+                <p className="text-gray-300">Lead not found</p>
             </div>
         );
     }
@@ -203,7 +203,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                     {/* Contact Info */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Phone</p>
+                            <p className="text-sm text-gray-400 mb-1">Phone</p>
                             <p className="font-medium flex items-center gap-2">
                                 {formatPhoneDisplay(lead.phonePrimary)}
                                 {lead.doNotCall && (
@@ -214,7 +214,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Email</p>
+                            <p className="text-sm text-gray-400 mb-1">Email</p>
                             <p className="font-medium flex items-center gap-2">
                                 {lead.emailPrimary || 'N/A'}
                                 {lead.doNotEmail && (
@@ -225,14 +225,14 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Last Contacted</p>
+                            <p className="text-sm text-gray-400 mb-1">Last Contacted</p>
                             <p className={`font-medium ${needsFollowUp ? 'text-orange-400' : ''}`}>
                                 {lead.lastContactedAt ? formatDateTime(lead.lastContactedAt) : 'Never'}
                                 {days !== null && ` (${days} days ago)`}
                             </p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-500 mb-1">Assigned To</p>
+                            <p className="text-sm text-gray-400 mb-1">Assigned To</p>
                             <p className="font-medium">
                                 {lead.assignedAdvisor?.displayName || 'Unassigned'}
                             </p>
@@ -333,18 +333,17 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
                     {/* Next Action Date */}
                     <div className="mb-4">
-                        <label className="label">Next Action Date</label>
-                        <Input
-                            type="datetime-local"
-                            value={lead.nextActionAt ? new Date(lead.nextActionAt).toISOString().slice(0, 16) : ''}
-                            onChange={(e) => updateLead({ nextActionAt: e.target.value ? new Date(e.target.value).toISOString() : null } as any)}
+                        <DateTimePicker
+                            label="Next Action Date"
+                            value={lead.nextActionAt ? new Date(lead.nextActionAt).toISOString() : ''}
+                            onChange={(isoValue) => updateLead({ nextActionAt: isoValue || null } as any)}
                         />
                     </div>
 
                     {/* Compliance Flags (Admin only) */}
                     {isAdmin && (
                         <div className="border-t border-[hsl(222,47%,18%)] pt-4 mt-4">
-                            <p className="text-sm font-medium text-gray-400 mb-3">Compliance Flags</p>
+                            <p className="text-sm font-medium text-gray-300 mb-3">Compliance Flags</p>
                             <div className="space-y-2">
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
@@ -414,8 +413,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                     <button
                         onClick={() => setActiveTab('notes')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'notes'
-                                ? 'bg-[hsl(222,47%,16%)] text-white shadow-sm'
-                                : 'text-gray-500 hover:text-gray-300'
+                            ? 'bg-[hsl(222,47%,16%)] text-white shadow-sm'
+                            : 'text-gray-400 hover:text-gray-200'
                             }`}
                     >
                         <FileText className="w-4 h-4" />
@@ -424,8 +423,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                     <button
                         onClick={() => setActiveTab('activity')}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'activity'
-                                ? 'bg-[hsl(222,47%,16%)] text-white shadow-sm'
-                                : 'text-gray-500 hover:text-gray-300'
+                            ? 'bg-[hsl(222,47%,16%)] text-white shadow-sm'
+                            : 'text-gray-400 hover:text-gray-200'
                             }`}
                     >
                         <Activity className="w-4 h-4" />
@@ -458,7 +457,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                     <div>
                         <h3 className="font-semibold mb-4">Activity Timeline</h3>
                         {lead.interactions.length === 0 ? (
-                            <div className="text-center py-8 text-gray-500">
+                            <div className="text-center py-8 text-gray-400">
                                 <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
                                 <p>No interactions yet</p>
                                 <p className="text-sm">Contact this lead to start the timeline</p>
@@ -531,7 +530,7 @@ function TimelineItem({ interaction }: { interaction: Interaction }) {
     return (
         <div className="timeline-item">
             <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-[hsl(222,47%,14%)] text-gray-400">
+                <div className="p-2 rounded-lg bg-[hsl(222,47%,14%)] text-gray-300">
                     {getIcon()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -546,13 +545,13 @@ function TimelineItem({ interaction }: { interaction: Interaction }) {
                                 )}
                             </p>
                             {interaction.summary && (
-                                <p className="text-gray-400 text-sm mt-1">{interaction.summary}</p>
+                                <p className="text-gray-300 text-sm mt-1">{interaction.summary}</p>
                             )}
                             {interaction.body && (
-                                <p className="text-gray-500 text-sm mt-1 line-clamp-2">{interaction.body}</p>
+                                <p className="text-gray-400 text-sm mt-1 line-clamp-2">{interaction.body}</p>
                             )}
                         </div>
-                        <div className="text-right text-sm text-gray-500 whitespace-nowrap">
+                        <div className="text-right text-sm text-gray-400 whitespace-nowrap">
                             {formatDateTime(interaction.occurredAt)}
                         </div>
                     </div>

@@ -189,7 +189,7 @@ export default function LeadsPage() {
                 <div className="flex flex-col md:flex-row flex-wrap gap-3 md:gap-4">
                     <form onSubmit={handleSearch} className="flex-1 min-w-0 md:min-w-[200px]">
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="Search by name, email, or phone..."
@@ -325,10 +325,10 @@ export default function LeadsPage() {
                                             <td>
                                                 <div className="text-sm">
                                                     {lead.phonePrimary && (
-                                                        <div className="text-gray-300">{formatPhoneDisplay(lead.phonePrimary)}</div>
+                                                        <div className="text-gray-200">{formatPhoneDisplay(lead.phonePrimary)}</div>
                                                     )}
                                                     {lead.emailPrimary && (
-                                                        <div className="text-gray-500 truncate max-w-[200px]">{lead.emailPrimary}</div>
+                                                        <div className="text-gray-400 truncate max-w-[200px]">{lead.emailPrimary}</div>
                                                     )}
                                                 </div>
                                             </td>
@@ -339,12 +339,12 @@ export default function LeadsPage() {
                                                 <PriorityBadge priority={lead.priority} />
                                             </td>
                                             <td>
-                                                <span className={`text-sm ${!lead.lastContactedAt || daysSinceContact(lead.lastContactedAt)! >= 5 ? 'text-orange-400' : 'text-gray-400'}`}>
+                                                <span className={`text-sm ${!lead.lastContactedAt || daysSinceContact(lead.lastContactedAt)! >= 5 ? 'text-orange-400' : 'text-gray-300'}`}>
                                                     {getDaysText(lead.lastContactedAt)}
                                                 </span>
                                             </td>
                                             {isAdmin && (
-                                                <td className="text-gray-400 text-sm">
+                                                <td className="text-gray-300 text-sm">
                                                     {lead.assignedAdvisor?.displayName || 'Unassigned'}
                                                 </td>
                                             )}
@@ -380,7 +380,7 @@ export default function LeadsPage() {
                                                     {isAdmin && (
                                                         <button
                                                             onClick={() => handleArchive(lead.id)}
-                                                            className="quick-action text-gray-500 hover:text-orange-400 transition-colors"
+                                                            className="quick-action text-gray-400 hover:text-orange-400 transition-colors"
                                                             title="Archive Lead"
                                                         >
                                                             <Archive className="w-4 h-4" />
@@ -419,7 +419,7 @@ export default function LeadsPage() {
                                         <StatusBadge status={lead.status} size="sm" />
                                     </div>
 
-                                    <div className="flex items-center gap-3 text-sm text-gray-400 mb-2">
+                                    <div className="flex items-center gap-3 text-sm text-gray-300 mb-2">
                                         {lead.phonePrimary && (
                                             <span>{formatPhoneDisplay(lead.phonePrimary)}</span>
                                         )}
@@ -427,7 +427,7 @@ export default function LeadsPage() {
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        <span className={`text-xs ${!lead.lastContactedAt || daysSinceContact(lead.lastContactedAt)! >= 5 ? 'text-orange-400' : 'text-gray-500'}`}>
+                                        <span className={`text-xs ${!lead.lastContactedAt || daysSinceContact(lead.lastContactedAt)! >= 5 ? 'text-orange-400' : 'text-gray-400'}`}>
                                             {getDaysText(lead.lastContactedAt)}
                                             {isAdmin && lead.assignedAdvisor && (
                                                 <span className="text-gray-600"> · {lead.assignedAdvisor.displayName}</span>
@@ -466,7 +466,7 @@ export default function LeadsPage() {
 
                         {/* Pagination */}
                         <div className="flex items-center justify-between p-4 md:p-5 border-t border-[hsl(222,47%,15%)]">
-                            <p className="text-xs md:text-sm text-gray-500">
+                            <p className="text-xs md:text-sm text-gray-400">
                                 <span className="hidden md:inline">Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of {total} leads</span>
                                 <span className="md:hidden">{total} leads</span>
                             </p>
@@ -480,7 +480,7 @@ export default function LeadsPage() {
                                     <ChevronLeft className="w-4 h-4" />
                                     <span className="hidden md:inline">Previous</span>
                                 </Button>
-                                <span className="text-xs md:text-sm text-gray-400 px-1 md:px-2">
+                                <span className="text-xs md:text-sm text-gray-300 px-1 md:px-2">
                                     {page} / {totalPages}
                                 </span>
                                 <Button

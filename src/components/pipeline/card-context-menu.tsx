@@ -105,8 +105,8 @@ export function CardContextMenu({
         >
             {/* Header */}
             <div className="flex items-center gap-2 px-3.5 py-2.5 border-b border-[hsl(222,47%,15%)]">
-                <ArrowRightLeft className="w-3.5 h-3.5 text-gray-500" />
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <ArrowRightLeft className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Move to Pipeline
                 </span>
             </div>
@@ -140,7 +140,7 @@ export function CardContextMenu({
                                 <span className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">
                                     {PIPELINE_LABELS[targetPipeline]}
                                 </span>
-                                <span className="text-[11px] text-gray-500">
+                                <span className="text-[11px] text-gray-400">
                                     {targetPipeline === 'cold_leads' && 'Move to outreach list'}
                                     {targetPipeline === 'warm_leads' && 'Move to active cultivation'}
                                     {targetPipeline === 'processing' && 'Move to loan processing'}

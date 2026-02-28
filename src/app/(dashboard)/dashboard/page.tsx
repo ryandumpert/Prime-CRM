@@ -212,17 +212,17 @@ export default function DashboardPage() {
                         </Link>
                     </div>
                     {stats?.callListCount === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
+                        <div className="text-center py-8 text-gray-400">
                             <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
                             <p>No leads requiring follow-up</p>
                             <p className="text-sm">All leads have been contacted within 5 days</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            <p className="text-gray-400">
+                            <p className="text-gray-300">
                                 <span className="text-xl font-bold text-white">{stats?.callListCount}</span> leads need follow-up
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-400">
                                 Leads not contacted in the last 5 days
                             </p>
                             <Link href="/call-list">
@@ -245,12 +245,12 @@ export default function DashboardPage() {
                             .map(([status, count]) => (
                                 <div key={status} className="flex items-center justify-between">
                                     <StatusBadge status={status as LeadStatusType} size="sm" />
-                                    <span className="text-gray-400 font-medium">{count}</span>
+                                    <span className="text-gray-300 font-medium">{count}</span>
                                 </div>
                             ))}
                     </div>
                     {stats?.statusCounts && Object.values(stats.statusCounts).every(c => c === 0) && (
-                        <div className="text-center py-8 text-gray-500">
+                        <div className="text-center py-8 text-gray-400">
                             <p>No leads in pipeline</p>
                             <p className="text-sm">Import leads to get started</p>
                         </div>
@@ -267,10 +267,10 @@ export default function DashboardPage() {
                         </div>
                         <div>
                             <h3 className="text-lg font-semibold">5-Day Follow-Up Schedule</h3>
-                            <p className="text-sm text-gray-500">Upcoming calls based on scheduled follow-up dates</p>
+                            <p className="text-sm text-gray-400">Upcoming calls based on scheduled follow-up dates</p>
                         </div>
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-400">
                         {schedule.length} {schedule.length === 1 ? 'lead' : 'leads'} scheduled
                     </span>
                 </div>
@@ -290,20 +290,20 @@ export default function DashboardPage() {
                                 <div className={`px-4 py-3 border-b ${isToday ? 'border-indigo-500/30' : 'border-[hsl(222,47%,18%)]'
                                     }`}>
                                     <div className="flex items-center justify-between">
-                                        <span className={`font-semibold text-sm ${isToday ? 'text-indigo-300' : 'text-gray-300'
+                                        <span className={`font-semibold text-sm ${isToday ? 'text-indigo-300' : 'text-gray-200'
                                             }`}>
                                             {day.label}
                                         </span>
                                         {day.leads.length > 0 && (
                                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${isToday
                                                     ? 'bg-indigo-500/20 text-indigo-300'
-                                                    : 'bg-[hsl(222,47%,18%)] text-gray-400'
+                                                    : 'bg-[hsl(222,47%,18%)] text-gray-300'
                                                 }`}>
                                                 {day.leads.length}
                                             </span>
                                         )}
                                     </div>
-                                    <span className="text-xs text-gray-500">{day.shortDay}</span>
+                                    <span className="text-xs text-gray-400">{day.shortDay}</span>
                                 </div>
 
                                 {/* Lead cards */}
@@ -329,12 +329,12 @@ export default function DashboardPage() {
                                                 </div>
                                                 <div className="flex items-center justify-between gap-2">
                                                     <StatusBadge status={lead.status} size="sm" />
-                                                    <span className="text-[11px] text-gray-500 whitespace-nowrap">
+                                                    <span className="text-[11px] text-gray-400 whitespace-nowrap">
                                                         {getActionTime(lead.nextActionAt)}
                                                     </span>
                                                 </div>
                                                 {lead.phonePrimary && (
-                                                    <div className="flex items-center gap-1.5 mt-2 text-gray-500 group-hover:text-gray-400 transition-colors">
+                                                    <div className="flex items-center gap-1.5 mt-2 text-gray-400 group-hover:text-gray-300 transition-colors">
                                                         <Phone className="w-3 h-3" />
                                                         <span className="text-xs">{formatPhoneDisplay(lead.phonePrimary)}</span>
                                                     </div>
@@ -356,11 +356,11 @@ export default function DashboardPage() {
 
                     {/* Column Headers */}
                     <div className="grid grid-cols-[1fr_repeat(4,80px)] md:grid-cols-[1fr_repeat(4,100px)] gap-2 px-4 mb-3">
-                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Advisor</span>
-                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Leads</span>
-                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Call List</span>
-                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Today</span>
-                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Week</span>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Advisor</span>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Leads</span>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Call List</span>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Today</span>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Week</span>
                     </div>
 
                     {/* Advisor Rows */}
@@ -389,7 +389,7 @@ export default function DashboardPage() {
                                         ? 'text-orange-400'
                                         : advisor.callListCount > 0
                                             ? 'text-yellow-400'
-                                            : 'text-gray-500'
+                                            : 'text-gray-400'
                                         }`}>
                                         {advisor.callListCount}
                                     </span>
@@ -397,7 +397,7 @@ export default function DashboardPage() {
 
                                 {/* Contacted Today */}
                                 <div className="text-center">
-                                    <span className={`text-lg font-bold ${advisor.contactedToday > 0 ? 'text-green-400' : 'text-gray-500'
+                                    <span className={`text-lg font-bold ${advisor.contactedToday > 0 ? 'text-green-400' : 'text-gray-400'
                                         }`}>
                                         {advisor.contactedToday}
                                     </span>
@@ -405,7 +405,7 @@ export default function DashboardPage() {
 
                                 {/* This Week */}
                                 <div className="text-center">
-                                    <span className={`text-lg font-bold ${advisor.contactedThisWeek > 0 ? 'text-blue-400' : 'text-gray-500'
+                                    <span className={`text-lg font-bold ${advisor.contactedThisWeek > 0 ? 'text-blue-400' : 'text-gray-400'
                                         }`}>
                                         {advisor.contactedThisWeek}
                                     </span>

@@ -74,13 +74,13 @@ export function Sidebar({ userRole, userName }: SidebarProps) {
                             <h1 className="font-bold text-lg bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                                 Prime CRM
                             </h1>
-                            <p className="text-xs text-gray-500">Loan Advisors</p>
+                            <p className="text-xs text-gray-400">Loan Advisors</p>
                         </div>
                     </Link>
 
                     {/* Mobile close button */}
                     <button
-                        className="md:hidden p-1.5 rounded-lg hover:bg-[hsl(222,47%,16%)] text-gray-400 transition-colors"
+                        className="md:hidden p-1.5 rounded-lg hover:bg-[hsl(222,47%,16%)] text-gray-300 transition-colors"
                         onClick={close}
                         aria-label="Close menu"
                     >
@@ -91,7 +91,7 @@ export function Sidebar({ userRole, userName }: SidebarProps) {
                 {/* Navigation */}
                 <nav className="flex-1 py-3 overflow-y-auto">
                     <div className="px-4 mb-2">
-                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
                             Main Menu
                         </span>
                     </div>
@@ -121,7 +121,7 @@ export function Sidebar({ userRole, userName }: SidebarProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{userName}</p>
-                            <p className="text-xs text-gray-500 capitalize">{userRole}</p>
+                            <p className="text-xs text-gray-400 capitalize">{userRole}</p>
                         </div>
                     </Link>
                 </div>

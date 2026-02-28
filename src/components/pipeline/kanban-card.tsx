@@ -51,8 +51,8 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
                 }
             }}
             className={cn(
-                'group glass-card p-5 cursor-pointer transition-all duration-200',
-                'hover:border-[hsl(222,47%,25%)] hover:bg-[hsl(222,47%,12%)]',
+                'group glass-card p-6 cursor-pointer transition-all duration-200',
+                'hover:border-[hsl(222,47%,28%)] hover:bg-[hsl(222,47%,12%)]',
                 'active:scale-[0.98] active:bg-[hsl(222,47%,14%)]',
                 'min-h-[72px]', // Touch target minimum
                 isDragging && 'opacity-50 scale-105 shadow-2xl rotate-1',
@@ -61,12 +61,12 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
             style={{ borderRadius: '12px' }}
         >
             {/* Name */}
-            <div className="flex items-center justify-between mb-2">
-                <h4 className="font-semibold text-[15px] text-gray-100 truncate pr-2">
+            <div className="flex items-center justify-between mb-2.5">
+                <h4 className="font-semibold text-[15px] text-white truncate pr-2">
                     {displayName}
                 </h4>
                 {lead.assignedAdvisor && (
-                    <span className="text-[11px] text-gray-500 truncate flex-shrink-0 max-w-[80px]">
+                    <span className="text-[11px] text-gray-300 truncate flex-shrink-0 max-w-[80px]">
                         {lead.assignedAdvisor.displayName}
                     </span>
                 )}
@@ -74,7 +74,7 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
 
             {/* Phone (display only — call/text actions are in the detail panel) */}
             {lead.phonePrimary && (
-                <div className="flex items-center gap-1.5 text-[13px] text-gray-400 mb-2">
+                <div className="flex items-center gap-1.5 text-[13px] text-gray-200 mb-2.5">
                     <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{formatPhoneDisplay(lead.phonePrimary)}</span>
                 </div>
@@ -82,7 +82,7 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
 
             {/* Latest note preview */}
             {lead.latestNote && (
-                <div className="flex items-start gap-1.5 text-[12px] text-gray-500 mb-2">
+                <div className="flex items-start gap-1.5 text-[12px] text-gray-300 mb-2.5">
                     <FileText className="w-3 h-3 flex-shrink-0 mt-0.5" />
                     <span className="line-clamp-1 italic">{lead.latestNote}</span>
                 </div>
@@ -91,7 +91,7 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
             {/* Priority + last contacted */}
             <div className="flex items-center justify-between gap-2">
                 <PriorityBadge priority={lead.priority} className="text-[11px] px-1.5 py-0" />
-                <div className="flex items-center gap-1 text-[12px] text-gray-500">
+                <div className="flex items-center gap-1 text-[12px] text-gray-300">
                     <Clock className="w-3 h-3" />
                     <span>{getDaysText()}</span>
                 </div>

@@ -66,7 +66,7 @@ export function KanbanColumn({
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: colors.accent }}
                     />
-                    <h3 className="text-sm font-semibold text-gray-300">
+                    <h3 className="text-sm font-semibold text-gray-200">
                         {STATUS_LABELS[status]}
                     </h3>
                 </div>
@@ -82,7 +82,7 @@ export function KanbanColumn({
             <div className="flex-1 overflow-y-auto p-2.5 space-y-2.5 min-h-[200px] max-h-[calc(100vh-280px)]">
                 {leads.length === 0 ? (
                     <div className={cn(
-                        'flex items-center justify-center h-20 rounded-lg border-2 border-dashed text-sm text-gray-500',
+                        'flex items-center justify-center h-20 rounded-lg border-2 border-dashed text-sm text-gray-400',
                         isOver ? colors.border : 'border-[hsl(222,47%,15%)]'
                     )}>
                         {isOver ? 'Drop here' : 'No leads'}
@@ -99,7 +99,7 @@ export function KanbanColumn({
                 )}
                 {hasMore && (
                     <div className="text-center py-2">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-400">
                             + {count - leads.length} more leads
                         </span>
                     </div>

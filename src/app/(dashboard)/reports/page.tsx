@@ -99,7 +99,7 @@ export default function ReportsPage() {
                         </div>
                         <div>
                             <p className="text-xl font-bold">{stats?.totalLeads || 0}</p>
-                            <p className="text-sm text-gray-500">Total Leads</p>
+                            <p className="text-sm text-gray-400">Total Leads</p>
                         </div>
                     </div>
                 </Card>
@@ -110,7 +110,7 @@ export default function ReportsPage() {
                         </div>
                         <div>
                             <p className="text-xl font-bold">{stats?.closedLeads || 0}</p>
-                            <p className="text-sm text-gray-500">Closed/Funded</p>
+                            <p className="text-sm text-gray-400">Closed/Funded</p>
                         </div>
                     </div>
                 </Card>
@@ -121,7 +121,7 @@ export default function ReportsPage() {
                         </div>
                         <div>
                             <p className="text-xl font-bold">{stats?.callListCount || 0}</p>
-                            <p className="text-sm text-gray-500">Needs Follow-up</p>
+                            <p className="text-sm text-gray-400">Needs Follow-up</p>
                         </div>
                     </div>
                 </Card>
@@ -132,7 +132,7 @@ export default function ReportsPage() {
                         </div>
                         <div>
                             <p className="text-xl font-bold">{stats?.contactedToday || 0}</p>
-                            <p className="text-sm text-gray-500">Contacted Today</p>
+                            <p className="text-sm text-gray-400">Contacted Today</p>
                         </div>
                     </div>
                 </Card>
@@ -146,7 +146,7 @@ export default function ReportsPage() {
                         {pipelineStages.map(({ status, count }) => (
                             <div key={status}>
                                 <div className="flex items-center justify-between mb-1">
-                                    <span className="text-sm text-gray-400">{STATUS_LABELS[status]}</span>
+                                    <span className="text-sm text-gray-300">{STATUS_LABELS[status]}</span>
                                     <span className="text-sm font-medium">{count}</span>
                                 </div>
                                 <div className="h-2 bg-[hsl(222,47%,15%)] rounded-full overflow-hidden">
@@ -177,9 +177,9 @@ export default function ReportsPage() {
                                     .sort(([, a], [, b]) => b - a)
                                     .map(([status, count]) => (
                                         <tr key={status}>
-                                            <td className="text-gray-300">{STATUS_LABELS[status as LeadStatusType]}</td>
+                                            <td className="text-gray-200">{STATUS_LABELS[status as LeadStatusType]}</td>
                                             <td className="text-right">{count}</td>
-                                            <td className="text-right text-gray-500">
+                                            <td className="text-right text-gray-400">
                                                 {stats.totalLeads > 0
                                                     ? ((count / stats.totalLeads) * 100).toFixed(1)
                                                     : 0}%
@@ -248,7 +248,7 @@ export default function ReportsPage() {
                                 ? ((stats.activeLeads / stats.totalLeads) * 100).toFixed(1)
                                 : 0}%
                         </p>
-                        <p className="text-sm text-gray-500 mt-1">Active Pipeline</p>
+                        <p className="text-sm text-gray-400 mt-1">Active Pipeline</p>
                     </div>
                     <div className="text-center p-4 rounded-xl bg-[hsl(222,47%,12%)]">
                         <p className="text-3xl font-bold text-green-400">
@@ -256,7 +256,7 @@ export default function ReportsPage() {
                                 ? ((stats.closedLeads / stats.totalLeads) * 100).toFixed(1)
                                 : 0}%
                         </p>
-                        <p className="text-sm text-gray-500 mt-1">Closed Rate</p>
+                        <p className="text-sm text-gray-400 mt-1">Closed Rate</p>
                     </div>
                     <div className="text-center p-4 rounded-xl bg-[hsl(222,47%,12%)]">
                         <p className="text-3xl font-bold text-purple-400">
@@ -264,7 +264,7 @@ export default function ReportsPage() {
                                 ? Math.round(stats.totalLeads / stats.closedLeads)
                                 : '-'}
                         </p>
-                        <p className="text-sm text-gray-500 mt-1">Leads per Close</p>
+                        <p className="text-sm text-gray-400 mt-1">Leads per Close</p>
                     </div>
                 </div>
             </Card>

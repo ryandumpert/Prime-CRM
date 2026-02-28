@@ -90,9 +90,9 @@ export function NoteInput({ leadId, onNoteSaved, placeholder = 'Type a note...',
     return (
         <div className={compact ? 'space-y-1' : 'space-y-2'}>
             <div className={`flex items-end gap-2 rounded-xl border transition-colors ${isListening
-                    ? 'border-red-500/50 bg-red-500/5'
-                    : 'border-[hsl(222,47%,20%)] bg-[hsl(222,47%,10%)]'
-                } ${compact ? 'p-2' : 'p-3'}`}>
+                ? 'border-red-500/50 bg-red-500/5'
+                : 'border-[hsl(222,47%,24%)] bg-[hsl(222,47%,10%)]'
+                } ${compact ? 'p-2.5' : 'p-3'}`}>
                 <textarea
                     ref={textareaRef}
                     value={displayText}
@@ -100,7 +100,7 @@ export function NoteInput({ leadId, onNoteSaved, placeholder = 'Type a note...',
                     onKeyDown={handleKeyDown}
                     placeholder={isListening ? 'Listening...' : placeholder}
                     rows={1}
-                    className={`flex-1 bg-transparent border-0 outline-none resize-none text-gray-200 placeholder-gray-600 ${compact ? 'text-sm' : 'text-sm'
+                    className={`flex-1 bg-transparent border-0 outline-none resize-none text-gray-100 placeholder-gray-500 ${compact ? 'text-sm' : 'text-sm'
                         }`}
                     style={{ minHeight: compact ? '24px' : '32px', maxHeight: '120px' }}
                 />
@@ -111,8 +111,8 @@ export function NoteInput({ leadId, onNoteSaved, placeholder = 'Type a note...',
                             type="button"
                             onClick={toggleListening}
                             className={`p-1.5 rounded-lg transition-all ${isListening
-                                    ? 'bg-red-500/20 text-red-400 animate-pulse'
-                                    : 'text-gray-500 hover:text-gray-300 hover:bg-[hsl(222,47%,16%)]'
+                                ? 'bg-red-500/20 text-red-400 animate-pulse'
+                                : 'text-gray-400 hover:text-gray-200 hover:bg-[hsl(222,47%,16%)]'
                                 }`}
                             title={isListening ? 'Stop dictation' : 'Start voice dictation'}
                         >
@@ -129,8 +129,8 @@ export function NoteInput({ leadId, onNoteSaved, placeholder = 'Type a note...',
                         onClick={handleSave}
                         disabled={!text.trim() || isSaving}
                         className={`p-1.5 rounded-lg transition-all ${text.trim()
-                                ? 'text-blue-400 hover:bg-blue-500/20'
-                                : 'text-gray-600 cursor-not-allowed'
+                            ? 'text-blue-400 hover:bg-blue-500/20'
+                            : 'text-gray-600 cursor-not-allowed'
                             }`}
                         title="Save note (Enter)"
                     >

@@ -65,7 +65,7 @@ export const STATUS_COLORS: Record<LeadStatusType, { bg: string; text: string; b
     CONDITIONAL_APPROVAL: { bg: 'bg-lime-500/20', text: 'text-lime-400', border: 'border-lime-500/30' },
     CLEAR_TO_CLOSE: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' },
     CLOSED_FUNDED: { bg: 'bg-green-600/20', text: 'text-green-300', border: 'border-green-600/30' },
-    NOT_INTERESTED: { bg: 'bg-gray-500/20', text: 'text-gray-400', border: 'border-gray-500/30' },
+    NOT_INTERESTED: { bg: 'bg-gray-500/20', text: 'text-gray-300', border: 'border-gray-500/30' },
     UNQUALIFIED: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30' },
     LOST: { bg: 'bg-rose-500/20', text: 'text-rose-400', border: 'border-rose-500/30' },
     DO_NOT_CONTACT: { bg: 'bg-slate-600/20', text: 'text-slate-400', border: 'border-slate-600/30' },

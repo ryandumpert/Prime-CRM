@@ -226,7 +226,7 @@ export default function ProfilePage() {
 
                             <div className="flex-1 text-center sm:text-left">
                                 <h4 className="font-medium text-lg mb-1">{displayName || 'Your Name'}</h4>
-                                <p className="text-gray-400 text-sm mb-3">{profile?.email}</p>
+                                <p className="text-gray-300 text-sm mb-3">{profile?.email}</p>
                                 <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                                     <Button
                                         type="button"
@@ -249,7 +249,7 @@ export default function ProfilePage() {
                                         </Button>
                                     )}
                                 </div>
-                                <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF. Max 500KB.</p>
+                                <p className="text-xs text-gray-400 mt-2">JPG, PNG or GIF. Max 500KB.</p>
                             </div>
 
                             <input
@@ -272,11 +272,11 @@ export default function ProfilePage() {
                             />
                             <div>
                                 <label className="label">Email Address</label>
-                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[hsl(222,47%,12%)] border border-[hsl(222,47%,18%)] text-gray-400">
-                                    <Mail className="w-4 h-4 text-gray-500" />
+                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[hsl(222,47%,12%)] border border-[hsl(222,47%,18%)] text-gray-300">
+                                    <Mail className="w-4 h-4 text-gray-400" />
                                     {profile?.email}
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1">Contact an admin to change your email.</p>
+                                <p className="text-xs text-gray-400 mt-1">Contact an admin to change your email.</p>
                             </div>
                         </div>
 
@@ -284,15 +284,15 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div>
                                 <label className="label">Role</label>
-                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[hsl(222,47%,12%)] border border-[hsl(222,47%,18%)] text-gray-400">
-                                    <Shield className="w-4 h-4 text-gray-500" />
+                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[hsl(222,47%,12%)] border border-[hsl(222,47%,18%)] text-gray-300">
+                                    <Shield className="w-4 h-4 text-gray-400" />
                                     <span className="capitalize">{profile?.role}</span>
                                 </div>
                             </div>
                             <div>
                                 <label className="label">Member Since</label>
-                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[hsl(222,47%,12%)] border border-[hsl(222,47%,18%)] text-gray-400">
-                                    <Calendar className="w-4 h-4 text-gray-500" />
+                                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[hsl(222,47%,12%)] border border-[hsl(222,47%,18%)] text-gray-300">
+                                    <Calendar className="w-4 h-4 text-gray-400" />
                                     {profile?.createdAt
                                         ? new Date(profile.createdAt).toLocaleDateString('en-US', {
                                             year: 'numeric',
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                         </div>
                         <div>
                             <h3 className="font-semibold text-lg">Change Password</h3>
-                            <p className="text-sm text-gray-500">Update your password to keep your account secure</p>
+                            <p className="text-sm text-gray-400">Update your password to keep your account secure</p>
                         </div>
                     </div>
 

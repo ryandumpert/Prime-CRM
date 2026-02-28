@@ -17,12 +17,12 @@
 
   /* Glass effect */
   --glass-bg: rgba(17, 24, 39, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.18);
 
   /* Text */
   --color-text-primary: 0 0% 98%;
-  --color-text-secondary: 215 20% 65%;
-  --color-text-muted: 215 20% 45%;
+  --color-text-secondary: 215 20% 75%;
+  --color-text-muted: 215 20% 65%;
 
   /* Status Colors */
   --color-success: 142 76% 36%;
@@ -37,11 +37,7 @@
   --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+/* Removed global * reset to allow Tailwind utility layers to properly apply margins and padding */
 
 html,
 body {
@@ -68,12 +64,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(215 20% 30%);
+  background: hsl(215 20% 35%);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(215 20% 40%);
+  background: hsl(215 20% 45%);
 }
 
 /* === COMPONENT CLASSES === */
@@ -106,7 +102,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 10px;
@@ -117,7 +113,11 @@ body {
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  background: hsl(222 47% 20%) !important;
+  color: hsl(215 20% 65%) !important;
+  border-color: hsl(222 47% 25%) !important;
+  box-shadow: none !important;
+  opacity: 0.8;
   cursor: not-allowed;
 }
 
@@ -135,8 +135,8 @@ body {
 
 .btn-secondary {
   background: hsl(222 47% 16%);
-  color: hsl(0 0% 90%);
-  border: 1px solid hsl(222 47% 25%);
+  color: hsl(0 0% 93%);
+  border: 1px solid hsl(222 47% 28%);
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -146,7 +146,7 @@ body {
 
 .btn-ghost {
   background: transparent;
-  color: hsl(215 20% 65%);
+  color: hsl(215 20% 75%);
 }
 
 .btn-ghost:hover:not(:disabled) {
@@ -190,10 +190,11 @@ body {
 /* Inputs */
 .input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.125rem;
   font-size: 0.875rem;
+  line-height: 1.5;
   background: hsl(222 47% 11%);
-  border: 1px solid hsl(222 47% 20%);
+  border: 1px solid hsl(222 47% 35%);
   border-radius: 10px;
   color: hsl(0 0% 98%);
   transition: all 0.2s ease;
@@ -206,7 +207,7 @@ body {
 }
 
 .input::placeholder {
-  color: hsl(215 20% 45%);
+  color: hsl(215 20% 65%);
 }
 
 .input-error {
@@ -220,10 +221,11 @@ body {
 /* Select */
 .select {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.125rem;
   font-size: 0.875rem;
+  line-height: 1.5;
   background: hsl(222 47% 11%);
-  border: 1px solid hsl(222 47% 20%);
+  border: 1px solid hsl(222 47% 35%);
   border-radius: 10px;
   color: hsl(0 0% 98%);
   cursor: pointer;
@@ -246,27 +248,29 @@ body {
 .label {
   display: block;
   font-size: 0.875rem;
-  font-weight: 500;
-  color: hsl(0 0% 90%);
+  font-weight: 600;
+  color: hsl(0 0% 92%);
   margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
 }
 
 /* Badge / Status Pill */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
+  padding: 0.375rem 0.875rem;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 9999px;
   border: 1px solid;
+  letter-spacing: 0.02em;
 }
 
 /* Tables */
 .table-container {
   overflow-x: auto;
   border-radius: 12px;
-  border: 1px solid hsl(222 47% 18%);
+  border: 1px solid hsl(222 47% 22%);
 }
 
 .table {
@@ -277,17 +281,17 @@ body {
 
 .table th {
   text-align: left;
-  padding: 0.875rem 1.25rem;
+  padding: 1rem 1.5rem;
   font-weight: 600;
-  color: hsl(215 20% 65%);
+  color: hsl(215 20% 75%);
   background: hsl(222 47% 10%);
-  border-bottom: 1px solid hsl(222 47% 18%);
+  border-bottom: 1px solid hsl(222 47% 22%);
   white-space: nowrap;
 }
 
 .table td {
-  padding: 0.875rem 1.25rem;
-  border-bottom: 1px solid hsl(222 47% 15%);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid hsl(222 47% 18%);
 }
 
 .table tbody tr {
@@ -303,7 +307,7 @@ body {
   width: 240px;
   min-height: 100vh;
   background: hsl(222 47% 8%);
-  border-right: 1px solid hsl(222 47% 15%);
+  border-right: 1px solid hsl(222 47% 20%);
   position: fixed;
   left: 0;
   top: 0;
@@ -316,10 +320,10 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.125rem;
   margin: 0.125rem 0.75rem;
   font-size: 0.875rem;
-  color: hsl(215 20% 65%);
+  color: hsl(215 20% 75%);
   text-decoration: none;
   border-radius: 10px;
   transition: all 0.15s ease;
@@ -388,7 +392,7 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: 14px;
-  padding: 1.75rem;
+  padding: 2rem;
   transition: all 0.2s ease;
 }
 
@@ -409,8 +413,8 @@ body {
 
 .stat-label {
   font-size: 0.875rem;
-  color: hsl(215 20% 65%);
-  margin-top: 0.25rem;
+  color: hsl(215 20% 75%);
+  margin-top: 0.375rem;
 }
 
 /* Loading Spinner */
@@ -442,19 +446,19 @@ body {
 .empty-state-icon {
   width: 64px;
   height: 64px;
-  color: hsl(215 20% 40%);
+  color: hsl(215 20% 45%);
   margin-bottom: 1rem;
 }
 
 .empty-state-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: hsl(0 0% 90%);
+  color: hsl(0 0% 93%);
   margin-bottom: 0.5rem;
 }
 
 .empty-state-description {
-  color: hsl(215 20% 60%);
+  color: hsl(215 20% 68%);
   max-width: 24rem;
 }
 
@@ -473,9 +477,9 @@ body {
 
 .modal {
   background: hsl(222 47% 11%);
-  border: 1px solid hsl(222 47% 20%);
+  border: 1px solid hsl(222 47% 35%);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 2rem;
   max-width: 32rem;
   width: 100%;
   max-height: 90vh;
@@ -514,14 +518,14 @@ body {
   background: hsl(222 47% 11%);
   padding: 0.25rem;
   border-radius: 10px;
-  border: 1px solid hsl(222 47% 18%);
+  border: 1px solid hsl(222 47% 22%);
 }
 
 .tab {
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1.125rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: hsl(215 20% 65%);
+  color: hsl(215 20% 72%);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -552,7 +556,7 @@ body {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: hsl(222 47% 20%);
+  background: hsl(222 47% 25%);
 }
 
 .timeline-item {
@@ -592,8 +596,8 @@ body {
   height: 36px;
   border-radius: 10px;
   background: hsl(222 47% 14%);
-  color: hsl(215 20% 70%);
-  border: 1px solid hsl(222 47% 20%);
+  color: hsl(215 20% 78%);
+  border: 1px solid hsl(222 47% 25%);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -620,14 +624,17 @@ body {
 }
 
 .quick-action.disabled {
-  opacity: 0.4;
+  background: hsl(222 47% 20%) !important;
+  color: hsl(215 20% 65%) !important;
+  border-color: hsl(222 47% 25%) !important;
+  opacity: 0.8;
   cursor: not-allowed;
 }
 
 .quick-action.disabled:hover {
-  background: hsl(222 47% 14%);
-  color: hsl(215 20% 70%);
-  border-color: hsl(222 47% 20%);
+  background: hsl(222 47% 20%) !important;
+  color: hsl(215 20% 65%) !important;
+  border-color: hsl(222 47% 25%) !important;
 }
 
 /* Mobile sidebar overlay */

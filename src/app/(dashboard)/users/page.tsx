@@ -127,11 +127,11 @@ export default function UsersPage() {
                 <div className="flex items-center gap-2 mb-4">
                     <Shield className="w-5 h-5 text-purple-400" />
                     <h3 className="font-semibold">Administrators</h3>
-                    <span className="text-sm text-gray-500">({admins.length})</span>
+                    <span className="text-sm text-gray-400">({admins.length})</span>
                 </div>
 
                 {admins.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">No administrators</p>
+                    <p className="text-gray-400 text-center py-4">No administrators</p>
                 ) : (
                     <div className="space-y-3">
                         {admins.map((user) => (
@@ -151,11 +151,11 @@ export default function UsersPage() {
                 <div className="flex items-center gap-2 mb-4">
                     <Users className="w-5 h-5 text-blue-400" />
                     <h3 className="font-semibold">Advisors</h3>
-                    <span className="text-sm text-gray-500">({advisors.length})</span>
+                    <span className="text-sm text-gray-400">({advisors.length})</span>
                 </div>
 
                 {advisors.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">No advisors</p>
+                    <p className="text-gray-400 text-center py-4">No advisors</p>
                 ) : (
                     <div className="space-y-3">
                         {advisors.map((user) => (
@@ -199,14 +199,14 @@ function UserRow({
                 <div className="flex items-center gap-2">
                     <p className="font-medium">{user.displayName}</p>
                     {!user.active && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-gray-500/20 text-gray-400">Inactive</span>
+                        <span className="text-xs px-2 py-0.5 rounded bg-gray-500/20 text-gray-300">Inactive</span>
                     )}
                 </div>
-                <p className="text-sm text-gray-500">{user.email}</p>
+                <p className="text-sm text-gray-400">{user.email}</p>
             </div>
             <div className="text-center">
                 <p className="text-lg font-semibold">{user._count.assignedLeads}</p>
-                <p className="text-xs text-gray-500">Leads</p>
+                <p className="text-xs text-gray-400">Leads</p>
             </div>
             <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={onEdit}>

@@ -29,7 +29,7 @@ export function ColumnTabs({ statuses, activeStatus, onSelect, counts, pipeline 
                             'min-h-[44px]', // Touch target
                             isActive
                                 ? `${colors.bg} ${colors.text} ${colors.border} border`
-                                : 'text-gray-400 hover:text-gray-300 hover:bg-[hsl(222,47%,14%)] border border-transparent'
+                                : 'text-gray-300 hover:text-gray-200 hover:bg-[hsl(222,47%,14%)] border border-transparent'
                         )}
                     >
                         <span>{STATUS_LABELS[status]}</span>
@@ -38,7 +38,7 @@ export function ColumnTabs({ statuses, activeStatus, onSelect, counts, pipeline 
                                 'inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-semibold',
                                 isActive
                                     ? 'bg-white/15 text-inherit'
-                                    : 'bg-[hsl(222,47%,18%)] text-gray-400'
+                                    : 'bg-[hsl(222,47%,18%)] text-gray-300'
                             )}
                         >
                             {count}

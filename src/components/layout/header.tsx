@@ -21,7 +21,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                 <div className="flex items-center gap-3">
                     {/* Mobile menu toggle */}
                     <button
-                        className="md:hidden p-2 -ml-2 rounded-lg hover:bg-[hsl(222,47%,16%)] text-gray-400 transition-colors"
+                        className="md:hidden p-2 -ml-2 rounded-lg hover:bg-[hsl(222,47%,16%)] text-gray-300 transition-colors"
                         onClick={toggle}
                         aria-label="Open menu"
                     >
@@ -35,7 +35,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                 <div className="flex items-center gap-3">
                     {/* Search */}
                     <div className="relative hidden md:block">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Search leads..."
@@ -72,7 +72,7 @@ export function Header({ title, subtitle }: HeaderProps) {
                 size="sm"
             >
                 <div className="py-2">
-                    <p className="text-gray-400 mb-6">
+                    <p className="text-gray-300 mb-6">
                         Are you sure you want to sign out? You will need to log back in to access the system.
                     </p>
                     <div className="flex justify-end gap-3">

@@ -60,7 +60,7 @@ export default function SettingsPage() {
                             defaultValue="5"
                             disabled
                         />
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-400">
                             Leads not contacted within this many days will appear on the daily call list.
                             <br />
                             <span className="text-yellow-400">Note: This value is configured in the codebase per blueprint spec.</span>
@@ -78,15 +78,15 @@ export default function SettingsPage() {
                     </div>
                     <div className="space-y-4">
                         <div>
-                            <p className="text-sm text-gray-400 mb-2">Default Import Source</p>
+                            <p className="text-sm text-gray-300 mb-2">Default Import Source</p>
                             <p className="font-medium">master_leads_list</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400 mb-2">Advisor Assignment Column</p>
+                            <p className="text-sm text-gray-300 mb-2">Advisor Assignment Column</p>
                             <p className="font-medium">Column L</p>
                         </div>
                         <div>
-                            <p className="text-sm text-gray-400 mb-2">Deduplication Strategy</p>
+                            <p className="text-sm text-gray-300 mb-2">Deduplication Strategy</p>
                             <p className="font-medium">Email → Phone → External Row ID</p>
                         </div>
                     </div>
@@ -104,21 +104,21 @@ export default function SettingsPage() {
                         <div className="flex items-center justify-between py-2">
                             <div>
                                 <p className="font-medium">Role-Based Access Control</p>
-                                <p className="text-sm text-gray-500">Advisors can only view assigned leads</p>
+                                <p className="text-sm text-gray-400">Advisors can only view assigned leads</p>
                             </div>
                             <span className="text-green-400 text-sm">Enabled</span>
                         </div>
                         <div className="flex items-center justify-between py-2">
                             <div>
                                 <p className="font-medium">Audit Logging</p>
-                                <p className="text-sm text-gray-500">Track all lead changes</p>
+                                <p className="text-sm text-gray-400">Track all lead changes</p>
                             </div>
                             <span className="text-green-400 text-sm">Enabled</span>
                         </div>
                         <div className="flex items-center justify-between py-2">
                             <div>
                                 <p className="font-medium">Do Not Contact Enforcement</p>
-                                <p className="text-sm text-gray-500">Prevent contacting DNC flagged leads</p>
+                                <p className="text-sm text-gray-400">Prevent contacting DNC flagged leads</p>
                             </div>
                             <span className="text-green-400 text-sm">Enabled</span>
                         </div>
@@ -134,12 +134,12 @@ export default function SettingsPage() {
                     </div>
                     <h3 className="font-semibold">Status Configuration</h3>
                 </div>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm text-gray-400 mb-4">
                     Lead status flow is configured per the blueprint specification. Terminal statuses are:
                 </p>
                 <div className="flex flex-wrap gap-2">
                     {['CLOSED_FUNDED', 'NOT_INTERESTED', 'UNQUALIFIED', 'LOST', 'DO_NOT_CONTACT'].map(status => (
-                        <span key={status} className="px-3 py-1 rounded-full bg-gray-500/20 text-gray-400 text-sm">
+                        <span key={status} className="px-3 py-1 rounded-full bg-gray-500/20 text-gray-300 text-sm">
                             {status}
                         </span>
                     ))}

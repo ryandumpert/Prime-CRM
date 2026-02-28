@@ -124,7 +124,7 @@ export default function ImportPage() {
                     </div>
                     <div>
                         <h3 className="font-semibold mb-2">Import Instructions</h3>
-                        <ul className="text-sm text-gray-400 space-y-1">
+                        <ul className="text-sm text-gray-300 space-y-1">
                             <li>• Upload your <strong>master leads list</strong> spreadsheet (Excel or CSV)</li>
                             <li>• The first row should contain column headers</li>
                             <li>• Include an <strong>advisor column</strong> (e.g., &quot;Advisor&quot;, &quot;Assigned Advisor&quot;, &quot;Loan Officer&quot;) to auto-assign leads</li>
@@ -159,11 +159,11 @@ export default function ImportPage() {
                             }
             `}
                     >
-                        <Upload className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                        <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                         <p className="text-lg font-medium mb-2">
                             Drop your spreadsheet here or click to browse
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-400">
                             Supports Excel (.xlsx, .xls) and CSV files
                         </p>
                     </div>
@@ -174,7 +174,7 @@ export default function ImportPage() {
                         </div>
                         <div className="flex-1">
                             <p className="font-medium">{selectedFile.name}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-400">
                                 {(selectedFile.size / 1024).toFixed(1)} KB
                             </p>
                         </div>
@@ -200,7 +200,7 @@ export default function ImportPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-green-400">Import Successful</h3>
-                                    <p className="text-sm text-gray-400">
+                                    <p className="text-sm text-gray-300">
                                         Your leads have been imported successfully
                                     </p>
                                 </div>
@@ -209,19 +209,19 @@ export default function ImportPage() {
                             <div className="grid grid-cols-4 gap-4 mb-4">
                                 <div className="p-4 rounded-xl bg-[hsl(222,47%,12%)] text-center">
                                     <p className="text-2xl font-bold">{result.stats?.rowsProcessed || 0}</p>
-                                    <p className="text-sm text-gray-500">Processed</p>
+                                    <p className="text-sm text-gray-400">Processed</p>
                                 </div>
                                 <div className="p-4 rounded-xl bg-[hsl(222,47%,12%)] text-center">
                                     <p className="text-2xl font-bold text-green-400">{result.stats?.rowsInserted || 0}</p>
-                                    <p className="text-sm text-gray-500">New Leads</p>
+                                    <p className="text-sm text-gray-400">New Leads</p>
                                 </div>
                                 <div className="p-4 rounded-xl bg-[hsl(222,47%,12%)] text-center">
                                     <p className="text-2xl font-bold text-blue-400">{result.stats?.rowsUpdated || 0}</p>
-                                    <p className="text-sm text-gray-500">Updated</p>
+                                    <p className="text-sm text-gray-400">Updated</p>
                                 </div>
                                 <div className="p-4 rounded-xl bg-[hsl(222,47%,12%)] text-center">
                                     <p className="text-2xl font-bold text-red-400">{result.stats?.rowsFailed || 0}</p>
-                                    <p className="text-sm text-gray-500">Failed</p>
+                                    <p className="text-sm text-gray-400">Failed</p>
                                 </div>
                             </div>
 
@@ -234,8 +234,8 @@ export default function ImportPage() {
                                     <div className="space-y-2 max-h-48 overflow-y-auto">
                                         {result.errors.map((error, i) => (
                                             <div key={i} className="text-sm p-2 rounded bg-[hsl(222,47%,10%)]">
-                                                <span className="text-gray-500">Row {error.rowIndex}:</span>{' '}
-                                                <span className="text-gray-300">{error.message}</span>
+                                                <span className="text-gray-400">Row {error.rowIndex}:</span>{' '}
+                                                <span className="text-gray-200">{error.message}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -255,7 +255,7 @@ export default function ImportPage() {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-semibold text-red-400">Import Failed</h3>
-                                <p className="text-sm text-gray-400">{result.error || 'An unknown error occurred'}</p>
+                                <p className="text-sm text-gray-300">{result.error || 'An unknown error occurred'}</p>
                             </div>
                             <Button variant="secondary" onClick={resetUpload}>
                                 Try Again
@@ -279,27 +279,27 @@ export default function ImportPage() {
                         <tbody>
                             <tr>
                                 <td className="font-medium">First Name</td>
-                                <td className="text-gray-400">first name, firstname, first_name</td>
+                                <td className="text-gray-300">first name, firstname, first_name</td>
                             </tr>
                             <tr>
                                 <td className="font-medium">Last Name</td>
-                                <td className="text-gray-400">last name, lastname, last_name</td>
+                                <td className="text-gray-300">last name, lastname, last_name</td>
                             </tr>
                             <tr>
                                 <td className="font-medium">Full Name</td>
-                                <td className="text-gray-400">name, full name, fullname</td>
+                                <td className="text-gray-300">name, full name, fullname</td>
                             </tr>
                             <tr>
                                 <td className="font-medium">Phone</td>
-                                <td className="text-gray-400">phone, mobile, cell, primary phone</td>
+                                <td className="text-gray-300">phone, mobile, cell, primary phone</td>
                             </tr>
                             <tr>
                                 <td className="font-medium">Email</td>
-                                <td className="text-gray-400">email, email address, e-mail</td>
+                                <td className="text-gray-300">email, email address, e-mail</td>
                             </tr>
                             <tr>
                                 <td className="font-medium">Advisor Assignment</td>
-                                <td className="text-gray-400">advisor, assigned advisor, loan officer, lo, advisor name, assigned to, rep</td>
+                                <td className="text-gray-300">advisor, assigned advisor, loan officer, lo, advisor name, assigned to, rep</td>
                             </tr>
                         </tbody>
                     </table>

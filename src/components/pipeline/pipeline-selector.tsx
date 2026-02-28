@@ -82,7 +82,7 @@ export function PipelineSelector({ value, onChange, className }: PipelineSelecto
                                     style={{ backgroundColor: pColors.accent }}
                                 />
                                 <div className="flex flex-col">
-                                    <span className={cn('font-medium text-sm', isActive ? pColors.text : 'text-gray-300')}>
+                                    <span className={cn('font-medium text-sm', isActive ? pColors.text : 'text-gray-200')}>
                                         {PIPELINE_LABELS[pipeline]}
                                     </span>
                                 </div>

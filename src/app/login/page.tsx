@@ -55,7 +55,7 @@ export default function LoginPage() {
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                         Prime CRM
                     </h1>
-                    <p className="text-gray-500 mt-2">Loan Advisors Portal</p>
+                    <p className="text-gray-400 mt-2">Loan Advisors Portal</p>
                 </div>
 
                 {/* Login Form */}
@@ -101,7 +101,7 @@ export default function LoginPage() {
                     </form>
                 </div>
 
-                <p className="text-center text-gray-500 text-sm mt-6">
+                <p className="text-center text-gray-400 text-sm mt-6">
                     Prime Loan Advisors CRM • Non-QM Lead Management
                 </p>
             </div>

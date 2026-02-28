@@ -154,7 +154,7 @@ export default function CallListPage() {
                     <div className="text-center py-16">
                         <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-500/50" />
                         <h2 className="text-xl font-semibold mb-2">All caught up!</h2>
-                        <p className="text-gray-400 max-w-md mx-auto">
+                        <p className="text-gray-300 max-w-md mx-auto">
                             Great work! All your leads have been contacted within the last 5 days.
                             Check back tomorrow for new follow-ups.
                         </p>
@@ -211,7 +211,7 @@ export default function CallListPage() {
                                                 <span className="font-medium truncate">{getDisplayName(lead)}</span>
                                                 <StatusBadge status={lead.status} size="sm" />
                                             </div>
-                                            <div className="flex items-center gap-3 md:gap-4 mt-1 text-sm text-gray-400">
+                                            <div className="flex items-center gap-3 md:gap-4 mt-1 text-sm text-gray-300">
                                                 {lead.phonePrimary && (
                                                     <span className="text-xs md:text-sm">{formatPhoneDisplay(lead.phonePrimary)}</span>
                                                 )}
@@ -243,7 +243,7 @@ export default function CallListPage() {
                                                 <AlertTriangle className="w-3 h-3" /> DNC
                                             </span>
                                         )}
-                                        <ChevronRight className="w-5 h-5 text-gray-500 hidden md:block" />
+                                        <ChevronRight className="w-5 h-5 text-gray-400 hidden md:block" />
                                     </div>
                                 </div>
                             ))}
@@ -298,7 +298,7 @@ function CallSessionView({
         <div className="max-w-2xl mx-auto">
             {/* Progress */}
             <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-gray-300">
                     Lead {currentIndex + 1} of {totalLeads}
                 </span>
                 <Button variant="ghost" size="sm" onClick={onExit}>
@@ -329,11 +329,11 @@ function CallSessionView({
 
                 <div className="grid grid-cols-2 gap-4 mb-6 text-center">
                     <div className="p-4 rounded-xl bg-[hsl(222,47%,12%)]">
-                        <p className="text-sm text-gray-500 mb-1">Phone</p>
+                        <p className="text-sm text-gray-400 mb-1">Phone</p>
                         <p className="font-medium text-base md:text-lg">{formatPhoneDisplay(lead.phonePrimary)}</p>
                     </div>
                     <div className="p-4 rounded-xl bg-[hsl(222,47%,12%)]">
-                        <p className="text-sm text-gray-500 mb-1">Last Contact</p>
+                        <p className="text-sm text-gray-400 mb-1">Last Contact</p>
                         <p className="font-medium text-lg text-orange-400">
                             {lead.lastContactedAt
                                 ? `${daysSinceContact(lead.lastContactedAt)} days ago`
@@ -349,12 +349,12 @@ function CallSessionView({
                         onClick={() => setShowNotes(!showNotes)}
                         className="flex items-center gap-2 w-full mb-3 text-left"
                     >
-                        <FileText className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Call Notes</span>
+                        <FileText className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Call Notes</span>
                         {showNotes ? (
-                            <ChevronUp className="w-3.5 h-3.5 text-gray-500 ml-auto" />
+                            <ChevronUp className="w-3.5 h-3.5 text-gray-400 ml-auto" />
                         ) : (
-                            <ChevronDown className="w-3.5 h-3.5 text-gray-500 ml-auto" />
+                            <ChevronDown className="w-3.5 h-3.5 text-gray-400 ml-auto" />
                         )}
                     </button>
                     {showNotes && (
@@ -433,7 +433,7 @@ function CallOutcomeModal({
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Log Call Result">
-            <p className="text-gray-400 mb-4">How did the call with <strong>{leadName}</strong> go?</p>
+            <p className="text-gray-300 mb-4">How did the call with <strong>{leadName}</strong> go?</p>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Select
                     label="Outcome"
