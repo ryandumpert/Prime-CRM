@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout';
-import { Button, Input, Select, Card, StatusBadge, PriorityBadge } from '@/components/ui';
+import { Button, Input, Select, Card, StatusBadge, PriorityBadge, Modal } from '@/components/ui';
 import {
     Search,
     Filter,
@@ -19,7 +19,10 @@ import {
     RefreshCw,
     Archive,
     CheckSquare,
-    Square
+    Square,
+    AlertTriangle,
+    CheckCircle,
+    XCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
@@ -63,6 +66,9 @@ export default function LeadsPage() {
     const [priorityFilter, setPriorityFilter] = useState('');
     const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
     const [isArchiving, setIsArchiving] = useState(false);
+    const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+    const [archiveSingleId, setArchiveSingleId] = useState<string | null>(null);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     const isAdmin = session?.user?.role === 'admin';
     const pageSize = 20;
@@ -119,38 +125,52 @@ export default function LeadsPage() {
         return `${days} days ago`;
     };
 
-    const handleArchive = async (leadId: string) => {
-        if (!confirm('Are you sure you want to archive this lead? It will be hidden from all views.')) return;
-        try {
-            await fetch(`/api/leads/${leadId}/archive`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ archived: true }),
-            });
-            fetchLeads();
-        } catch (error) {
-            console.error('Error archiving lead:', error);
-        }
+    const showToast = (message: string, type: 'success' | 'error') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 4000);
     };
 
-    const handleBatchArchive = async () => {
+    const handleArchive = (leadId: string) => {
+        setArchiveSingleId(leadId);
+        setShowArchiveConfirm(true);
+    };
+
+    const handleBatchArchive = () => {
         if (selectedLeads.size === 0) return;
-        if (!confirm(`Are you sure you want to archive ${selectedLeads.size} lead(s)? They will be hidden from all views.`)) return;
+        setArchiveSingleId(null);
+        setShowArchiveConfirm(true);
+    };
+
+    const executeArchive = async () => {
+        setShowArchiveConfirm(false);
         setIsArchiving(true);
+
         try {
-            await Promise.all(
-                Array.from(selectedLeads).map(leadId =>
-                    fetch(`/api/leads/${leadId}/archive`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ archived: true }),
-                    })
-                )
-            );
+            const idsToArchive = archiveSingleId
+                ? [archiveSingleId]
+                : Array.from(selectedLeads);
+
+            const res = await fetch('/api/leads/batch-archive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ leadIds: idsToArchive, archived: true }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showToast(data.error || 'Failed to archive leads', 'error');
+                console.error('Archive error:', data);
+                return;
+            }
+
+            showToast(`${data.count} lead(s) archived successfully`, 'success');
             setSelectedLeads(new Set());
+            setArchiveSingleId(null);
             fetchLeads();
         } catch (error) {
-            console.error('Error batch archiving leads:', error);
+            console.error('Error archiving leads:', error);
+            showToast('Network error — please try again', 'error');
         } finally {
             setIsArchiving(false);
         }
@@ -498,6 +518,72 @@ export default function LeadsPage() {
                     </>
                 )}
             </Card>
+
+            {/* Archive Confirmation Modal */}
+            <Modal
+                isOpen={showArchiveConfirm}
+                onClose={() => {
+                    setShowArchiveConfirm(false);
+                    setArchiveSingleId(null);
+                }}
+                title="Confirm Archive"
+            >
+                <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-orange-500/20 shrink-0">
+                            <AlertTriangle className="w-5 h-5 text-orange-400" />
+                        </div>
+                        <div>
+                            <p className="text-gray-200">
+                                {archiveSingleId
+                                    ? 'Are you sure you want to archive this lead? It will be hidden from all views.'
+                                    : `Are you sure you want to archive ${selectedLeads.size} lead(s)? They will be hidden from all views.`}
+                            </p>
+                            <p className="text-sm text-gray-400 mt-2">
+                                This action can be reversed by an admin.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setShowArchiveConfirm(false);
+                                setArchiveSingleId(null);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={executeArchive} isLoading={isArchiving}>
+                            <Archive className="w-4 h-4" />
+                            Archive {archiveSingleId ? 'Lead' : `${selectedLeads.size} Lead(s)`}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Toast Notification */}
+            {toast && (
+                <div
+                    className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl border transition-all animate-in slide-in-from-bottom-4 duration-300
+                        ${toast.type === 'success'
+                            ? 'bg-green-500/15 border-green-500/30 text-green-300'
+                            : 'bg-red-500/15 border-red-500/30 text-red-300'
+                        }`}
+                    style={{ backdropFilter: 'blur(12px)' }}
+                >
+                    {toast.type === 'success'
+                        ? <CheckCircle className="w-5 h-5 text-green-400" />
+                        : <XCircle className="w-5 h-5 text-red-400" />}
+                    <span className="font-medium text-sm">{toast.message}</span>
+                    <button
+                        onClick={() => setToast(null)}
+                        className="ml-2 text-gray-400 hover:text-white transition-colors text-lg leading-none"
+                    >
+                        &times;
+                    </button>
+                </div>
+            )}
         </>
     );
 }

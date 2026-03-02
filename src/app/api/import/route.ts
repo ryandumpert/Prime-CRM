@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Map column indices dynamically from headers
-        let firstNameIdx = -1, lastNameIdx = -1, fullNameIdx = -1, phoneIdx = -1, emailIdx = -1, dateIdx = -1, advisorIdx = -1;
+        let firstNameIdx = -1, lastNameIdx = -1, fullNameIdx = -1, phoneIdx = -1, emailIdx = -1, dateIdx = -1, advisorIdx = -1, loanProductIdx = -1, sourceIdx = -1, notesIdx = -1;
 
         headers.forEach((header, idx) => {
             if (typeof header !== 'string') return;
@@ -81,6 +81,9 @@ export async function POST(request: NextRequest) {
             if (matchHeader(header, HEADER_PATTERNS.email)) emailIdx = idx;
             if (matchHeader(header, HEADER_PATTERNS.date)) dateIdx = idx;
             if (matchHeader(header, HEADER_PATTERNS.advisor)) advisorIdx = idx;
+            if (matchHeader(header, HEADER_PATTERNS.loanProduct)) loanProductIdx = idx;
+            if (matchHeader(header, HEADER_PATTERNS.source)) sourceIdx = idx;
+            if (matchHeader(header, HEADER_PATTERNS.notes)) notesIdx = idx;
         });
 
         const errors: any[] = [];
@@ -117,6 +120,26 @@ export async function POST(request: NextRequest) {
 
                 const phonePrimary = phoneIdx >= 0 ? normalizePhone(String(row[phoneIdx] || '')) : null;
                 const emailPrimary = emailIdx >= 0 ? normalizeEmail(String(row[emailIdx] || '')) : null;
+
+                // New fields
+                const loanProduct = loanProductIdx >= 0 && row[loanProductIdx] ? String(row[loanProductIdx]).trim().replace(/\r\n|\n|\r/g, '') : null;
+                const leadSource = sourceIdx >= 0 && row[sourceIdx] ? String(row[sourceIdx]).trim().replace(/\r\n|\n|\r/g, '') : null;
+                const notesRaw = notesIdx >= 0 && row[notesIdx] ? String(row[notesIdx]).trim().replace(/\r\n|\n|\r/g, '') : null;
+
+                // Parse date of entry (Excel serial number or date string)
+                let dateOfEntry: Date | null = null;
+                if (dateIdx >= 0 && row[dateIdx]) {
+                    const rawDate = row[dateIdx];
+                    if (typeof rawDate === 'number') {
+                        // Excel serial date: convert to JS Date
+                        // Excel epoch is Jan 0 1900 (with the 1900 leap year bug)
+                        const excelEpoch = new Date(1899, 11, 30);
+                        dateOfEntry = new Date(excelEpoch.getTime() + rawDate * 86400000);
+                    } else {
+                        const parsed = new Date(String(rawDate));
+                        if (!isNaN(parsed.getTime())) dateOfEntry = parsed;
+                    }
+                }
 
                 // Get advisor assignment from detected advisor column
                 const advisorValue = advisorIdx >= 0 && row[advisorIdx] ? String(row[advisorIdx]).trim() : null;
@@ -206,15 +229,50 @@ export async function POST(request: NextRequest) {
                     if (assignedAdvisorUserId) {
                         updateData.assignedAdvisorUserId = assignedAdvisorUserId;
                     }
+                    // Update new fields if present
+                    if (loanProduct) updateData.loanProduct = loanProduct;
+                    if (leadSource) updateData.leadSource = leadSource;
+                    if (dateOfEntry) updateData.dateOfEntry = dateOfEntry;
 
                     await prisma.lead.update({
                         where: { id: existingLead.id },
                         data: updateData,
                     });
+
+                    // Import notes as Interaction record if present
+                    if (notesRaw) {
+                        // Find admin user to attribute imported notes to
+                        const adminUser = await prisma.user.findFirst({ where: { role: 'admin' } });
+                        if (adminUser) {
+                            // Check if this exact note was already imported to avoid duplicates
+                            const existingNote = await prisma.interaction.findFirst({
+                                where: {
+                                    leadId: existingLead.id,
+                                    type: 'note',
+                                    summary: 'Imported Note',
+                                    body: notesRaw,
+                                },
+                            });
+                            if (!existingNote) {
+                                await prisma.interaction.create({
+                                    data: {
+                                        leadId: existingLead.id,
+                                        userId: adminUser.id,
+                                        type: 'note',
+                                        direction: 'internal',
+                                        summary: 'Imported Note',
+                                        body: notesRaw,
+                                        occurredAt: dateOfEntry || existingLead.createdAt,
+                                    },
+                                });
+                            }
+                        }
+                    }
+
                     rowsUpdated++;
                 } else {
                     // Create new lead
-                    await prisma.lead.create({
+                    const newLead = await prisma.lead.create({
                         data: {
                             externalSource: DEFAULT_IMPORT_SOURCE,
                             externalRowId: `row_${rowIndex}`,
@@ -224,11 +282,33 @@ export async function POST(request: NextRequest) {
                             phonePrimary,
                             emailPrimary,
                             assignedAdvisorUserId,
+                            loanProduct,
+                            leadSource,
+                            dateOfEntry,
                             status: 'NEW',
                             rawImportPayload: rawPayload,
                             rawImportHash,
                         },
                     });
+
+                    // Import notes as Interaction record if present
+                    if (notesRaw) {
+                        const adminUser = await prisma.user.findFirst({ where: { role: 'admin' } });
+                        if (adminUser) {
+                            await prisma.interaction.create({
+                                data: {
+                                    leadId: newLead.id,
+                                    userId: adminUser.id,
+                                    type: 'note',
+                                    direction: 'internal',
+                                    summary: 'Imported Note',
+                                    body: notesRaw,
+                                    occurredAt: dateOfEntry || new Date(),
+                                },
+                            });
+                        }
+                    }
+
                     rowsInserted++;
                 }
             } catch (error: any) {

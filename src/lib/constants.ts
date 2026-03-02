@@ -202,8 +202,11 @@ export const HEADER_PATTERNS = {
     fullName: ['name', 'full name', 'fullname', 'full_name'],
     phone: ['phone', 'mobile', 'cell', 'primary phone', 'phone number', 'phonenumber'],
     email: ['email', 'email address', 'emailaddress', 'e-mail'],
-    date: ['date', 'created', 'lead date', 'created_at', 'createdat'],
+    date: ['date', 'created', 'lead date', 'created_at', 'createdat', 'date of entry', 'dateofentry', 'date entry', 'entry date'],
     advisor: ['advisor', 'assigned advisor', 'loan officer', 'lo', 'advisor name', 'assigned to', 'rep', 'loan advisor', 'assigned advisor name'],
+    loanProduct: ['loan product', 'loanproduct', 'loan_product', 'loan type', 'loantype', 'loan_type', 'product', 'product type'],
+    source: ['source', 'lead source', 'leadsource', 'lead_source', 'referral source', 'origin'],
+    notes: ['notes', 'note', 'comments', 'comment', 'remarks', 'remark'],
 };
 
 // === PIPELINES ===

@@ -102,6 +102,11 @@ model Lead {
   phonePrimary          String?    @map("phone_primary") // E.164 normalized
   emailPrimary          String?    @map("email_primary")
 
+  // Extended Lead Info
+  dateOfEntry           DateTime?  @map("date_of_entry")
+  loanProduct           String?    @map("loan_product")
+  leadSource            String?    @map("lead_source")
+
   // Pipeline
   status                LeadStatus @default(NEW)
   pipeline              Pipeline   @default(cold_leads)

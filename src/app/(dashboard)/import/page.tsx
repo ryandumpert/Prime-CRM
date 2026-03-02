@@ -301,6 +301,22 @@ export default function ImportPage() {
                                 <td className="font-medium">Advisor Assignment</td>
                                 <td className="text-gray-300">advisor, assigned advisor, loan officer, lo, advisor name, assigned to, rep</td>
                             </tr>
+                            <tr>
+                                <td className="font-medium">Date of Entry</td>
+                                <td className="text-gray-300">date, date of entry, entry date, created, lead date</td>
+                            </tr>
+                            <tr>
+                                <td className="font-medium">Loan Product</td>
+                                <td className="text-gray-300">loan product, loan type, product, product type</td>
+                            </tr>
+                            <tr>
+                                <td className="font-medium">Source</td>
+                                <td className="text-gray-300">source, lead source, referral source, origin</td>
+                            </tr>
+                            <tr>
+                                <td className="font-medium">Notes</td>
+                                <td className="text-gray-300">notes, note, comments, comment, remarks</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

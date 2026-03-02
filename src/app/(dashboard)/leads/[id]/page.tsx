@@ -57,6 +57,9 @@ interface Lead {
     doNotEmail: boolean;
     consentSms: boolean | null;
     consentCall: boolean | null;
+    dateOfEntry: string | null;
+    loanProduct: string | null;
+    leadSource: string | null;
     rawImportPayload: Record<string, any> | null;
     createdAt: string;
     updatedAt: string;
@@ -238,6 +241,30 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                             </p>
                         </div>
                     </div>
+
+                    {/* Lead Details */}
+                    {(lead.dateOfEntry || lead.loanProduct || lead.leadSource) && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pt-4 border-t border-[hsl(222,47%,18%)]">
+                            <div>
+                                <p className="text-sm text-gray-400 mb-1">Date of Entry</p>
+                                <p className="font-medium">
+                                    {lead.dateOfEntry ? formatDateTime(lead.dateOfEntry) : 'N/A'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-400 mb-1">Loan Product</p>
+                                <p className="font-medium">
+                                    {lead.loanProduct || 'N/A'}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-400 mb-1">Source</p>
+                                <p className="font-medium">
+                                    {lead.leadSource || 'N/A'}
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Quick Actions */}
                     <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3">
