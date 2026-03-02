@@ -55,6 +55,8 @@ export async function GET(request: NextRequest) {
                     statusUpdatedAt: true,
                     nextActionAt: true,
                     pipeline: true,
+                    dateOfEntry: true,
+                    leadSource: true,
                     assignedAdvisor: {
                         select: {
                             id: true,

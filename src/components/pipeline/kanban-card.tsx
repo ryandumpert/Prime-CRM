@@ -1,9 +1,9 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { formatPhoneDisplay, daysSinceContact } from '@/lib/utils';
+import { formatPhoneDisplay, daysSinceContact, formatDateTime } from '@/lib/utils';
 import { PriorityBadge } from '@/components/ui';
-import { Phone, Clock, FileText } from 'lucide-react';
+import { Phone, Clock, FileText, Calendar, MapPin } from 'lucide-react';
 
 export interface KanbanLead {
     id: string;
@@ -19,6 +19,8 @@ export interface KanbanLead {
     pipeline: string;
     latestNote: string | null;
     nextActionAt: string | null;
+    dateOfEntry: string | null;
+    leadSource: string | null;
     assignedAdvisor: { id: string; displayName: string } | null;
 }
 
@@ -31,7 +33,9 @@ interface KanbanCardProps {
 }
 
 export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className }: KanbanCardProps) {
-    const displayName = lead.fullName || [lead.firstName, lead.lastName].filter(Boolean).join(' ') || 'Unknown';
+    const displayName = (lead.firstName && lead.lastName)
+        ? `${lead.firstName} ${lead.lastName}`
+        : lead.fullName || lead.firstName || lead.lastName || 'Unknown';
 
     const getDaysText = () => {
         if (!lead.lastContactedAt) return 'Never contacted';
@@ -60,14 +64,15 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
             )}
             style={{ borderRadius: '12px' }}
         >
-            {/* Name */}
+            {/* Name + Date of Entry */}
             <div className="flex items-center justify-between mb-2.5">
                 <h4 className="font-semibold text-[15px] text-white truncate pr-2">
                     {displayName}
                 </h4>
-                {lead.assignedAdvisor && (
-                    <span className="text-[11px] text-gray-300 truncate flex-shrink-0 max-w-[80px]">
-                        {lead.assignedAdvisor.displayName}
+                {lead.dateOfEntry && (
+                    <span className="text-[11px] text-gray-400 truncate flex-shrink-0 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(lead.dateOfEntry).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </span>
                 )}
             </div>
@@ -88,13 +93,20 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
                 </div>
             )}
 
-            {/* Priority + last contacted */}
+            {/* Priority + Lead Source */}
             <div className="flex items-center justify-between gap-2">
                 <PriorityBadge priority={lead.priority} className="text-[11px] px-1.5 py-0" />
-                <div className="flex items-center gap-1 text-[12px] text-gray-300">
-                    <Clock className="w-3 h-3" />
-                    <span>{getDaysText()}</span>
-                </div>
+                {lead.leadSource ? (
+                    <div className="flex items-center gap-1 text-[12px] text-gray-300">
+                        <MapPin className="w-3 h-3" />
+                        <span className="truncate max-w-[80px]">{lead.leadSource}</span>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-1 text-[12px] text-gray-300">
+                        <Clock className="w-3 h-3" />
+                        <span>{getDaysText()}</span>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -110,6 +110,9 @@ export default function LeadsPage() {
     };
 
     const getDisplayName = (lead: Lead) => {
+        if (lead.firstName && lead.lastName) {
+            return `${lead.firstName} ${lead.lastName}`;
+        }
         if (lead.fullName) return lead.fullName;
         if (lead.firstName || lead.lastName) {
             return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
