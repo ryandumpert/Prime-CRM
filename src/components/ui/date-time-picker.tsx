@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import {
     CalendarDays,
@@ -67,6 +68,9 @@ export function DateTimePicker({
     const containerRef = useRef<HTMLDivElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
 
+    // Portal popover position state
+    const [popoverPos, setPopoverPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
     // Sync internal state when value changes externally
     useEffect(() => {
         if (value) {
@@ -85,11 +89,15 @@ export function DateTimePicker({
         }
     }, [value]);
 
-    // Close on click outside
+    // Close on click outside — check both the trigger container and the portal popover
     useEffect(() => {
         if (!isOpen) return;
         const handleClick = (e: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+            const target = e.target as Node;
+            if (
+                containerRef.current && !containerRef.current.contains(target) &&
+                popoverRef.current && !popoverRef.current.contains(target)
+            ) {
                 setIsOpen(false);
             }
         };
@@ -107,31 +115,49 @@ export function DateTimePicker({
         return () => document.removeEventListener('keydown', handleKey);
     }, [isOpen]);
 
-    // Position popover to keep it in viewport
+    // Position the portal popover relative to the trigger using getBoundingClientRect
     useEffect(() => {
-        if (!isOpen || !popoverRef.current || !containerRef.current) return;
-        const popover = popoverRef.current;
-        const container = containerRef.current;
-        const rect = container.getBoundingClientRect();
-        const popRect = popover.getBoundingClientRect();
+        if (!isOpen || !containerRef.current) return;
 
-        // Reset positioning
-        popover.style.left = '0px';
-        popover.style.right = 'auto';
+        const updatePosition = () => {
+            if (!containerRef.current || !popoverRef.current) return;
+            const triggerRect = containerRef.current.getBoundingClientRect();
+            const popoverEl = popoverRef.current;
+            const popHeight = popoverEl.offsetHeight;
+            const popWidth = popoverEl.offsetWidth;
 
-        // Check if popover overflows right
-        if (rect.left + popRect.width > window.innerWidth - 16) {
-            popover.style.left = 'auto';
-            popover.style.right = '0px';
-        }
+            // Default: position below the trigger, left-aligned
+            let top = triggerRect.bottom + 4 + window.scrollY;
+            let left = triggerRect.left + window.scrollX;
 
-        // Check if popover overflows bottom - show above if so
-        if (rect.bottom + popRect.height > window.innerHeight - 16) {
-            popover.style.bottom = '100%';
-            popover.style.top = 'auto';
-            popover.style.marginBottom = '4px';
-            popover.style.marginTop = '0';
-        }
+            // If it would overflow the bottom of the viewport, show above instead
+            if (triggerRect.bottom + popHeight + 16 > window.innerHeight) {
+                top = triggerRect.top - popHeight - 4 + window.scrollY;
+            }
+
+            // If it would overflow the right, align to the right edge of the trigger
+            if (left + popWidth > window.innerWidth - 16) {
+                left = triggerRect.right - popWidth + window.scrollX;
+            }
+
+            // Safety: don't go off-screen left
+            if (left < 8) left = 8;
+
+            setPopoverPos({ top, left });
+        };
+
+        // Run once immediately, then on scroll / resize
+        // Use requestAnimationFrame to ensure the popover is rendered before measuring
+        const raf = requestAnimationFrame(updatePosition);
+
+        window.addEventListener('scroll', updatePosition, true);
+        window.addEventListener('resize', updatePosition);
+
+        return () => {
+            cancelAnimationFrame(raf);
+            window.removeEventListener('scroll', updatePosition, true);
+            window.removeEventListener('resize', updatePosition);
+        };
     }, [isOpen]);
 
     const buildDateTime = useCallback(
@@ -232,12 +258,12 @@ export function DateTimePicker({
                 )}
             </button>
 
-            {/* Popover */}
-            {isOpen && (
+            {/* Popover — rendered via portal to escape overflow clipping */}
+            {isOpen && createPortal(
                 <div
                     ref={popoverRef}
-                    className="absolute z-[100] mt-1 bg-[hsl(222,47%,11%)] border border-[hsl(222,47%,24%)] rounded-xl shadow-2xl shadow-black/50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
-                    style={{ minWidth: '300px' }}
+                    className="fixed z-[9999] bg-[hsl(222,47%,11%)] border border-[hsl(222,47%,24%)] rounded-xl shadow-2xl shadow-black/50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+                    style={{ minWidth: '300px', top: `${popoverPos.top}px`, left: `${popoverPos.left}px` }}
                 >
                     {/* Calendar Header */}
                     <div className="flex items-center justify-between px-4 pt-4 pb-2">
@@ -391,7 +417,8 @@ export function DateTimePicker({
                             Done
                         </button>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

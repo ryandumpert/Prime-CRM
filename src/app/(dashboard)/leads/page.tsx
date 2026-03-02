@@ -195,7 +195,8 @@ export default function LeadsPage() {
                                 placeholder="Search by name, email, or phone..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="input pl-10"
+                                className="input"
+                                style={{ paddingLeft: '2.5rem' }}
                             />
                         </div>
                     </form>
