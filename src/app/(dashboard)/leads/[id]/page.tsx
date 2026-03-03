@@ -646,6 +646,28 @@ function InteractionModal({
     const [followUpDays, setFollowUpDays] = useState<number | null>(null);
     const [customFollowUp, setCustomFollowUp] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [templates, setTemplates] = useState<Array<{ id: string; name: string; category: string; subject: string | null; body: string }>>([]);
+    const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+
+    // Fetch templates for text/email types
+    useEffect(() => {
+        if ((type === 'text' || type === 'email') && isOpen) {
+            fetch(`/api/templates?type=${type}&active=true`)
+                .then(res => res.json())
+                .then(data => setTemplates(data.data || []))
+                .catch(() => setTemplates([]));
+        }
+    }, [type, isOpen]);
+
+    const handleTemplateSelect = (templateId: string) => {
+        setSelectedTemplate(templateId);
+        if (!templateId) return;
+        const tmpl = templates.find(t => t.id === templateId);
+        if (tmpl) {
+            setBody(tmpl.body);
+            if (!summary) setSummary(tmpl.name);
+        }
+    };
 
     const getOutcomes = () => {
         switch (type) {
@@ -745,7 +767,35 @@ function InteractionModal({
                 />
 
                 <div>
-                    <label className="label">Details (optional)</label>
+                    <div className="flex items-center justify-between mb-1">
+                        <label className="label">Details (optional)</label>
+                        {selectedTemplate && (
+                            <button
+                                type="button"
+                                onClick={() => { setSelectedTemplate(''); setBody(''); }}
+                                className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                                Clear template
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Template Picker - only for text/email */}
+                    {(type === 'text' || type === 'email') && templates.length > 0 && (
+                        <div className="mb-2">
+                            <select
+                                value={selectedTemplate}
+                                onChange={(e) => handleTemplateSelect(e.target.value)}
+                                className="input text-sm"
+                            >
+                                <option value="">💬 Use a template...</option>
+                                {templates.map(t => (
+                                    <option key={t.id} value={t.id}>{t.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     <textarea
                         className="input min-h-[100px] resize-y"
                         placeholder="Additional details..."

@@ -23,7 +23,7 @@
 |---|---------|--------|-----------|
 | 6 | **Advisor Leaderboard & Performance Dashboard** — Dedicated leaderboard: calls made today/this week, leads contacted, leads converted (Warm/Processing), response time, conversion rate by advisor. | ✅ Done | Mar 3, 2026 |
 | 7 | **Lead Source Analytics** — Conversion rates by lead source (PML, DSCR, Rabbu, etc.). Total leads per source, % contacted, % moved to warm, % funded, avg time-to-convert. | ✅ Done | Mar 3, 2026 |
-| 8 | **Email/Text Templates** — Pre-built message templates for common scenarios (initial outreach, follow-up after voicemail, doc request, rate quote follow-up). Admin-managed template library. | ⬜ Planned | — |
+| 8 | **Email/Text Templates** — Pre-built message templates for common scenarios (initial outreach, follow-up after voicemail, doc request, rate quote follow-up). Admin-managed template library. | ✅ Done | Mar 3, 2026 |
 | 9 | **Stale Lead Alerts** — Visual indicators on pipeline board and dashboard for leads untouched in 3/7/14 days. Glowing border, warning icon, or "Needs Attention" filter. | ⬜ Planned | — |
 | 10 | **Loan Product Pipeline Filters** — Filter pipeline board by loan product (DSCR, PML, Conventional, etc.) so advisors can focus on one product type at a time. | ⬜ Planned | — |
 

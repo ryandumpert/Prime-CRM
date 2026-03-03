@@ -16,6 +16,7 @@ import {
     User,
     X,
     Kanban,
+    FileText,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -28,6 +29,7 @@ const advisorNavItems = [
     { href: '/pipeline', label: 'Pipeline Board', icon: Kanban },
     { href: '/leads', label: 'My Leads', icon: Users },
     { href: '/call-list', label: 'Daily Call List', icon: PhoneCall },
+    { href: '/templates', label: 'Templates', icon: FileText },
     { href: '/profile', label: 'My Profile', icon: UserCircle },
 ];
 
@@ -37,6 +39,7 @@ const adminNavItems = [
     { href: '/leads', label: 'All Leads', icon: Users },
     { href: '/call-list', label: 'Daily Call List', icon: PhoneCall },
     { href: '/import', label: 'Import Leads', icon: Upload },
+    { href: '/templates', label: 'Templates', icon: FileText },
     { href: '/reports', label: 'Reports', icon: BarChart3 },
     { href: '/users', label: 'User Management', icon: UserCircle },
     { href: '/settings', label: 'Settings', icon: Settings },

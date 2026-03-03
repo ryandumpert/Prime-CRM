@@ -206,3 +206,22 @@ model AuditLog {
   @@index([occurredAt])
   @@map("audit_log")
 }
+
+model MessageTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  category    String   // initial_outreach, follow_up, doc_request, rate_quote, general
+  type        String   // text, email, both
+  subject     String?  // Email subject line (optional for text-only)
+  body        String   @db.Text
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdBy   String?  @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([type])
+  @@index([active])
+  @@map("message_templates")
+}
