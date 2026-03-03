@@ -18,7 +18,8 @@ import {
     RefreshCw,
     FileText,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Download
 } from 'lucide-react';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
 import {
@@ -55,6 +56,7 @@ export default function CallListPage() {
     const [isSessionMode, setIsSessionMode] = useState(false);
     const [showOutcomeModal, setShowOutcomeModal] = useState(false);
     const [noteRefreshKey, setNoteRefreshKey] = useState(0);
+    const [isExporting, setIsExporting] = useState(false);
 
     const fetchCallList = useCallback(async () => {
         setIsLoading(true);
@@ -134,6 +136,32 @@ export default function CallListPage() {
         }
     };
 
+    const handleExportCallList = async () => {
+        setIsExporting(true);
+        try {
+            const res = await fetch('/api/leads/export?callListOnly=true');
+            if (!res.ok) throw new Error('Export failed');
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            const disposition = res.headers.get('Content-Disposition');
+            const filenameMatch = disposition?.match(/filename="(.+)"/);
+            a.download = filenameMatch?.[1] || 'call_list_export.csv';
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch {
+            console.error('Failed to export call list');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-96">
@@ -188,6 +216,10 @@ export default function CallListPage() {
                         <Button variant="secondary" onClick={fetchCallList}>
                             <RefreshCw className="w-4 h-4" />
                             Refresh
+                        </Button>
+                        <Button variant="secondary" onClick={handleExportCallList} isLoading={isExporting}>
+                            <Download className="w-4 h-4" />
+                            Export ({leads.length})
                         </Button>
                     </div>
 

@@ -25,7 +25,8 @@ import {
     XCircle,
     UserPlus,
     ArrowRightCircle,
-    Flag
+    Flag,
+    Download
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
@@ -76,6 +77,7 @@ export default function LeadsPage() {
     const [bulkActionValue, setBulkActionValue] = useState('');
     const [isBulkUpdating, setIsBulkUpdating] = useState(false);
     const [advisors, setAdvisors] = useState<{ id: string; displayName: string }[]>([]);
+    const [isExporting, setIsExporting] = useState(false);
 
     const isAdmin = session?.user?.role === 'admin';
     const pageSize = 20;
@@ -262,6 +264,40 @@ export default function LeadsPage() {
         }
     };
 
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (statusFilter) params.append('status', statusFilter);
+            if (priorityFilter) params.append('priority', priorityFilter);
+
+            const res = await fetch(`/api/leads/export?${params}`);
+            if (!res.ok) throw new Error('Export failed');
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Extract filename from Content-Disposition header
+            const disposition = res.headers.get('Content-Disposition');
+            const filenameMatch = disposition?.match(/filename="(.+)"/);
+            a.download = filenameMatch?.[1] || 'leads_export.csv';
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showToast(`Exported ${total} leads to CSV`, 'success');
+        } catch {
+            showToast('Failed to export leads', 'error');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     return (
         <>
             <Header
@@ -320,6 +356,11 @@ export default function LeadsPage() {
                         <Button variant="secondary" onClick={fetchLeads}>
                             <RefreshCw className="w-4 h-4" />
                             Refresh
+                        </Button>
+
+                        <Button variant="secondary" onClick={handleExport} isLoading={isExporting}>
+                            <Download className="w-4 h-4" />
+                            Export{search || statusFilter || priorityFilter ? ' Filtered' : ''} ({total})
                         </Button>
 
                         {isAdmin && selectedLeads.size > 0 && (

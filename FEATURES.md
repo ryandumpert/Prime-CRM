@@ -52,7 +52,7 @@
 | 20 | **Keyboard shortcuts** — `N` for new lead, `S` for search, arrow keys to navigate pipeline cards. | ⬜ Planned | — |
 | 21 | **Drag to reassign** — Drag a lead card onto an advisor's name in a sidebar to reassign. | ⬜ Planned | — |
 | 22 | **Duplicate lead detection on import** — Preview which leads will be created vs. updated before confirming import. | ✅ Done | Mar 3, 2026 |
-| 23 | **Export filtered views** — Export the current filtered/searched leads list as CSV, not just full database. | ⬜ Planned | — |
+| 23 | **Export filtered views** — Export the current filtered/searched leads list as CSV, not just full database. | ✅ Done | Mar 3, 2026 |
 | 24 | **Dark/light mode toggle** — Option for advisors who prefer a light interface. | ⬜ Planned | — |
 
 ---
