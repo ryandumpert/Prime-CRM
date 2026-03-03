@@ -22,7 +22,10 @@ import {
     Square,
     AlertTriangle,
     CheckCircle,
-    XCircle
+    XCircle,
+    UserPlus,
+    ArrowRightCircle,
+    Flag
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
@@ -69,6 +72,10 @@ export default function LeadsPage() {
     const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
     const [archiveSingleId, setArchiveSingleId] = useState<string | null>(null);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+    const [showBulkAction, setShowBulkAction] = useState<'reassign' | 'status' | 'priority' | null>(null);
+    const [bulkActionValue, setBulkActionValue] = useState('');
+    const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+    const [advisors, setAdvisors] = useState<{ id: string; displayName: string }[]>([]);
 
     const isAdmin = session?.user?.role === 'admin';
     const pageSize = 20;
@@ -200,6 +207,61 @@ export default function LeadsPage() {
         }
     };
 
+    const fetchAdvisors = async () => {
+        try {
+            const res = await fetch('/api/users');
+            const data = await res.json();
+            if (data.data) {
+                setAdvisors(data.data.map((u: any) => ({ id: u.id, displayName: u.displayName })));
+            }
+        } catch (error) {
+            console.error('Error fetching advisors:', error);
+        }
+    };
+
+    const openBulkAction = (action: 'reassign' | 'status' | 'priority') => {
+        setBulkActionValue('');
+        setShowBulkAction(action);
+        if (action === 'reassign' && advisors.length === 0) {
+            fetchAdvisors();
+        }
+    };
+
+    const executeBulkAction = async () => {
+        if (!showBulkAction || !bulkActionValue || selectedLeads.size === 0) return;
+        setIsBulkUpdating(true);
+
+        try {
+            const res = await fetch('/api/leads/batch-update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    leadIds: Array.from(selectedLeads),
+                    action: showBulkAction,
+                    value: bulkActionValue,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showToast(data.error || 'Failed to update leads', 'error');
+                return;
+            }
+
+            showToast(data.message || `${data.count} lead(s) updated`, 'success');
+            setSelectedLeads(new Set());
+            setShowBulkAction(null);
+            setBulkActionValue('');
+            fetchLeads();
+        } catch (error) {
+            console.error('Error batch updating:', error);
+            showToast('Network error — please try again', 'error');
+        } finally {
+            setIsBulkUpdating(false);
+        }
+    };
+
     return (
         <>
             <Header
@@ -261,10 +323,24 @@ export default function LeadsPage() {
                         </Button>
 
                         {isAdmin && selectedLeads.size > 0 && (
-                            <Button variant="danger" onClick={handleBatchArchive} isLoading={isArchiving}>
-                                <Archive className="w-4 h-4" />
-                                Archive ({selectedLeads.size})
-                            </Button>
+                            <>
+                                <Button variant="secondary" onClick={() => openBulkAction('reassign')}>
+                                    <UserPlus className="w-4 h-4" />
+                                    Reassign ({selectedLeads.size})
+                                </Button>
+                                <Button variant="secondary" onClick={() => openBulkAction('status')}>
+                                    <ArrowRightCircle className="w-4 h-4" />
+                                    Set Status ({selectedLeads.size})
+                                </Button>
+                                <Button variant="secondary" onClick={() => openBulkAction('priority')}>
+                                    <Flag className="w-4 h-4" />
+                                    Set Priority ({selectedLeads.size})
+                                </Button>
+                                <Button variant="danger" onClick={handleBatchArchive} isLoading={isArchiving}>
+                                    <Archive className="w-4 h-4" />
+                                    Archive ({selectedLeads.size})
+                                </Button>
+                            </>
                         )}
 
                         {isAdmin && (
@@ -565,6 +641,82 @@ export default function LeadsPage() {
                 </div>
             </Modal>
 
+            {/* Bulk Action Modal */}
+            <Modal
+                isOpen={showBulkAction !== null}
+                onClose={() => {
+                    setShowBulkAction(null);
+                    setBulkActionValue('');
+                }}
+                title={
+                    showBulkAction === 'reassign' ? `Reassign ${selectedLeads.size} Lead(s)` :
+                        showBulkAction === 'status' ? `Set Status for ${selectedLeads.size} Lead(s)` :
+                            showBulkAction === 'priority' ? `Set Priority for ${selectedLeads.size} Lead(s)` :
+                                'Bulk Action'
+                }
+            >
+                <div className="space-y-4">
+                    <p className="text-sm text-gray-400">
+                        This will update <strong className="text-gray-200">{selectedLeads.size}</strong> selected lead(s).
+                    </p>
+
+                    {showBulkAction === 'reassign' && (
+                        <Select
+                            label="Assign To"
+                            options={[
+                                { value: '', label: 'Select an advisor...' },
+                                ...advisors.map(a => ({ value: a.id, label: a.displayName })),
+                            ]}
+                            value={bulkActionValue}
+                            onChange={(e) => setBulkActionValue(e.target.value)}
+                        />
+                    )}
+
+                    {showBulkAction === 'status' && (
+                        <Select
+                            label="New Status"
+                            options={[
+                                { value: '', label: 'Select a status...' },
+                                ...LEAD_STATUSES.map(s => ({ value: s, label: STATUS_LABELS[s] })),
+                            ]}
+                            value={bulkActionValue}
+                            onChange={(e) => setBulkActionValue(e.target.value)}
+                        />
+                    )}
+
+                    {showBulkAction === 'priority' && (
+                        <Select
+                            label="New Priority"
+                            options={[
+                                { value: '', label: 'Select a priority...' },
+                                { value: 'high', label: 'High' },
+                                { value: 'normal', label: 'Normal' },
+                                { value: 'low', label: 'Low' },
+                            ]}
+                            value={bulkActionValue}
+                            onChange={(e) => setBulkActionValue(e.target.value)}
+                        />
+                    )}
+
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                setShowBulkAction(null);
+                                setBulkActionValue('');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button onClick={executeBulkAction} disabled={!bulkActionValue} isLoading={isBulkUpdating}>
+                            {showBulkAction === 'reassign' ? <UserPlus className="w-4 h-4" /> :
+                                showBulkAction === 'status' ? <ArrowRightCircle className="w-4 h-4" /> :
+                                    <Flag className="w-4 h-4" />}
+                            Apply to {selectedLeads.size} Lead(s)
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
             {/* Toast Notification */}
             {toast && (
                 <div

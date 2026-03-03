@@ -88,6 +88,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
     const [interactionType, setInteractionType] = useState<'call' | 'text' | 'email' | 'note'>('note');
     const [activeTab, setActiveTab] = useState<'notes' | 'activity'>('notes');
     const [noteRefreshKey, setNoteRefreshKey] = useState(0);
+    const [timelineFilter, setTimelineFilter] = useState('all');
 
     const isAdmin = session?.user?.role === 'admin';
 
@@ -482,20 +483,54 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 ) : (
                     /* Activity Tab */
                     <div>
-                        <h3 className="font-semibold mb-4">Activity Timeline</h3>
-                        {lead.interactions.length === 0 ? (
-                            <div className="text-center py-8 text-gray-400">
-                                <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                <p>No interactions yet</p>
-                                <p className="text-sm">Contact this lead to start the timeline</p>
-                            </div>
-                        ) : (
-                            <div className="timeline">
-                                {lead.interactions.map((interaction) => (
-                                    <TimelineItem key={interaction.id} interaction={interaction} />
-                                ))}
-                            </div>
-                        )}
+                        <h3 className="font-semibold mb-3">Activity Timeline</h3>
+                        {/* Timeline Filters */}
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                            {[
+                                { key: 'all', label: 'All' },
+                                { key: 'call', label: 'Calls' },
+                                { key: 'text', label: 'Texts' },
+                                { key: 'email', label: 'Emails' },
+                                { key: 'note', label: 'Notes' },
+                                { key: 'status_change', label: 'Status' },
+                            ].map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setTimelineFilter(key)}
+                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${timelineFilter === key
+                                        ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'
+                                        : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-200'
+                                        }`}
+                                >
+                                    {label}
+                                    {key !== 'all' && (
+                                        <span className="ml-1 opacity-60">
+                                            {lead.interactions.filter(i => key === 'status_change' ? (i.type === 'status_change' || i.type === 'assignment_change') : i.type === key).length}
+                                        </span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        {(() => {
+                            const filtered = timelineFilter === 'all'
+                                ? lead.interactions
+                                : timelineFilter === 'status_change'
+                                    ? lead.interactions.filter(i => i.type === 'status_change' || i.type === 'assignment_change')
+                                    : lead.interactions.filter(i => i.type === timelineFilter);
+                            return filtered.length === 0 ? (
+                                <div className="text-center py-8 text-gray-400">
+                                    <Clock className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                    <p>{timelineFilter === 'all' ? 'No interactions yet' : `No ${timelineFilter === 'status_change' ? 'status changes' : timelineFilter + 's'} found`}</p>
+                                    <p className="text-sm">{timelineFilter === 'all' ? 'Contact this lead to start the timeline' : 'Try a different filter'}</p>
+                                </div>
+                            ) : (
+                                <div className="timeline">
+                                    {filtered.map((interaction) => (
+                                        <TimelineItem key={interaction.id} interaction={interaction} />
+                                    ))}
+                                </div>
+                            );
+                        })()}
                     </div>
                 )}
             </Card>
@@ -736,8 +771,8 @@ function InteractionModal({
                                 type="button"
                                 onClick={() => { setFollowUpDays(days); setCustomFollowUp(''); }}
                                 className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${followUpDays === days && !customFollowUp
-                                        ? 'bg-orange-500/20 border-orange-500/40 text-orange-300'
-                                        : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
+                                    ? 'bg-orange-500/20 border-orange-500/40 text-orange-300'
+                                    : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
                                     }`}
                             >
                                 {label}
@@ -747,8 +782,8 @@ function InteractionModal({
                             type="button"
                             onClick={() => { setFollowUpDays(null); setCustomFollowUp(''); }}
                             className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${followUpDays === null && !customFollowUp
-                                    ? 'bg-gray-500/20 border-gray-500/40 text-gray-300'
-                                    : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
+                                ? 'bg-gray-500/20 border-gray-500/40 text-gray-300'
+                                : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
                                 }`}
                         >
                             None
