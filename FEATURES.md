@@ -36,9 +36,10 @@
 | 11 | **Automated Drip Campaigns** — Auto-trigger follow-up sequences by status (Day 0: text, Day 1: call, Day 3: email, Day 7: second call). 80% of sales require 5+ touches. | ⬜ Planned | — |
 | 12 | **Document Checklist & Collection Tracker** — For Processing pipeline leads: track required docs (pay stubs, W-2s, bank statements, tax returns). Visual tracker + automated reminders. | ⬜ Planned | — |
 | 13 | **Calendar Integration** — Two-way sync with Google Calendar / Outlook. Follow-ups create calendar events; calendar events show in CRM dashboard. | ⬜ Planned | — |
-| 14 | **SMS/Email Integration (Send from CRM)** — Send texts via Twilio and emails via SendGrid/Mailgun directly from the CRM. Full conversation threads on lead timeline. | ⬜ Planned | — |
-| 15 | **Rate Quote Calculator** — Built-in tool to generate quotes by loan product, amount, credit score, property type. Save to timeline, email/text to lead. | ⬜ Planned | — |
-| 16 | **Mobile PWA** — Progressive Web App manifest + service worker. Install on phone home screen, offline-capable lead viewing, push notifications for new leads and reminders. | ⬜ Planned | — |
+| 14 | **SMS Integration (Send from CRM)** — Send texts via Twilio directly from the CRM. Two-way SMS with dedicated phone numbers, delivery receipts, and full conversation threads on lead timeline. | ⬜ Planned | — |
+| 15 | **Email Integration (Send from CRM)** — Send emails via SendGrid or Mailgun directly from the CRM. HTML email support, open/click tracking, and full conversation threads on lead timeline. | ⬜ Planned | — |
+| 16 | **Rate Quote Calculator** — Built-in tool to generate quotes by loan product, amount, credit score, property type. Save to timeline, email/text to lead. | ⬜ Planned | — |
+| 17 | **Mobile PWA** — Progressive Web App manifest + service worker. Install on phone home screen, offline-capable lead viewing, push notifications for new leads and reminders. | ⬜ Planned | — |
 
 ---
 
@@ -46,13 +47,13 @@
 
 | # | Feature | Status | Completed |
 |---|---------|--------|-----------|
-| 17 | **Search across all pages** — Global search bar in header works on every page, not just leads list. | ⬜ Planned | — |
-| 18 | **Lead count by pipeline tab** — Show count badge on pipeline selector tabs (Cold: 347, Warm: 12, Processing: 3). | ⬜ Planned | — |
-| 19 | **Keyboard shortcuts** — `N` for new lead, `S` for search, arrow keys to navigate pipeline cards. | ⬜ Planned | — |
-| 20 | **Drag to reassign** — Drag a lead card onto an advisor's name in a sidebar to reassign. | ⬜ Planned | — |
-| 21 | **Duplicate lead detection on import** — Preview which leads will be created vs. updated before confirming import. | ⬜ Planned | — |
-| 22 | **Export filtered views** — Export the current filtered/searched leads list as CSV, not just full database. | ⬜ Planned | — |
-| 23 | **Dark/light mode toggle** — Option for advisors who prefer a light interface. | ⬜ Planned | — |
+| 18 | **Search across all pages** — Global search bar in header works on every page, not just leads list. | ⬜ Planned | — |
+| 19 | **Lead count by pipeline tab** — Show count badge on pipeline selector tabs (Cold: 347, Warm: 12, Processing: 3). | ⬜ Planned | — |
+| 20 | **Keyboard shortcuts** — `N` for new lead, `S` for search, arrow keys to navigate pipeline cards. | ⬜ Planned | — |
+| 21 | **Drag to reassign** — Drag a lead card onto an advisor's name in a sidebar to reassign. | ⬜ Planned | — |
+| 22 | **Duplicate lead detection on import** — Preview which leads will be created vs. updated before confirming import. | ✅ Done | Mar 3, 2026 |
+| 23 | **Export filtered views** — Export the current filtered/searched leads list as CSV, not just full database. | ⬜ Planned | — |
+| 24 | **Dark/light mode toggle** — Option for advisors who prefer a light interface. | ⬜ Planned | — |
 
 ---
 
