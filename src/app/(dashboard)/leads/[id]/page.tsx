@@ -608,6 +608,8 @@ function InteractionModal({
     const [outcome, setOutcome] = useState('');
     const [summary, setSummary] = useState('');
     const [body, setBody] = useState('');
+    const [followUpDays, setFollowUpDays] = useState<number | null>(null);
+    const [customFollowUp, setCustomFollowUp] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const getOutcomes = () => {
@@ -621,6 +623,17 @@ function InteractionModal({
             default:
                 return [];
         }
+    };
+
+    const getFollowUpDate = (): string | null => {
+        if (customFollowUp) return new Date(customFollowUp + 'T09:00:00').toISOString();
+        if (followUpDays !== null) {
+            const d = new Date();
+            d.setDate(d.getDate() + followUpDays);
+            d.setHours(9, 0, 0, 0);
+            return d.toISOString();
+        }
+        return null;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -641,9 +654,21 @@ function InteractionModal({
             });
 
             if (res.ok) {
+                // Save follow-up date if set
+                const followUpDate = getFollowUpDate();
+                if (followUpDate) {
+                    await fetch(`/api/leads/${leadId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nextActionAt: followUpDate }),
+                    });
+                }
+
                 setOutcome('');
                 setSummary('');
                 setBody('');
+                setFollowUpDays(null);
+                setCustomFollowUp('');
                 onSuccess();
             }
         } catch (error) {
@@ -692,6 +717,60 @@ function InteractionModal({
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
                     />
+                </div>
+
+                {/* Follow-Up Reminder */}
+                <div className="border-t border-gray-700 pt-4">
+                    <label className="label flex items-center gap-2 mb-2">
+                        <Clock className="w-4 h-4 text-orange-400" />
+                        Schedule Follow-Up
+                    </label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                        {[
+                            { label: 'Tomorrow', days: 1 },
+                            { label: '3 Days', days: 3 },
+                            { label: '1 Week', days: 7 },
+                        ].map(({ label, days }) => (
+                            <button
+                                key={days}
+                                type="button"
+                                onClick={() => { setFollowUpDays(days); setCustomFollowUp(''); }}
+                                className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${followUpDays === days && !customFollowUp
+                                        ? 'bg-orange-500/20 border-orange-500/40 text-orange-300'
+                                        : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
+                                    }`}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => { setFollowUpDays(null); setCustomFollowUp(''); }}
+                            className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${followUpDays === null && !customFollowUp
+                                    ? 'bg-gray-500/20 border-gray-500/40 text-gray-300'
+                                    : 'border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-200'
+                                }`}
+                        >
+                            None
+                        </button>
+                    </div>
+                    <input
+                        type="date"
+                        value={customFollowUp}
+                        onChange={(e) => { setCustomFollowUp(e.target.value); setFollowUpDays(null); }}
+                        className="input text-sm"
+                        min={new Date().toISOString().split('T')[0]}
+                        placeholder="Or pick a date..."
+                    />
+                    {(followUpDays !== null || customFollowUp) && (
+                        <p className="text-xs text-orange-300 mt-1">
+                            📅 Follow-up set for{' '}
+                            {customFollowUp
+                                ? new Date(customFollowUp + 'T09:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+                                : new Date(Date.now() + (followUpDays || 0) * 86400000).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+                            }
+                        </p>
+                    )}
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">

@@ -1,9 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { formatPhoneDisplay, daysSinceContact, formatDateTime } from '@/lib/utils';
+import { formatPhoneDisplay, daysSinceContact } from '@/lib/utils';
 import { PriorityBadge } from '@/components/ui';
-import { Phone, Clock, FileText, Calendar, MapPin } from 'lucide-react';
+import { Phone, Clock, FileText, Calendar, MapPin, Mail, MessageSquare, Zap, Timer, SkipForward } from 'lucide-react';
 
 export interface KanbanLead {
     id: string;
@@ -21,18 +22,35 @@ export interface KanbanLead {
     nextActionAt: string | null;
     dateOfEntry: string | null;
     leadSource: string | null;
+    leadScore: number;
+    interactionCount: number;
     assignedAdvisor: { id: string; displayName: string } | null;
 }
 
 interface KanbanCardProps {
     lead: KanbanLead;
     onClick: (lead: KanbanLead) => void;
+    onSnooze?: (leadId: string, days: number) => void;
     onContextMenu?: (e: React.MouseEvent, lead: KanbanLead) => void;
     isDragging?: boolean;
     className?: string;
 }
 
-export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className }: KanbanCardProps) {
+function getScoreColor(score: number): string {
+    if (score >= 70) return 'text-green-400 bg-green-500/15 border-green-500/30';
+    if (score >= 40) return 'text-yellow-400 bg-yellow-500/15 border-yellow-500/30';
+    return 'text-gray-400 bg-gray-500/15 border-gray-500/30';
+}
+
+function getScoreLabel(score: number): string {
+    if (score >= 70) return 'Hot';
+    if (score >= 40) return 'Warm';
+    return 'Cold';
+}
+
+export function KanbanCard({ lead, onClick, onSnooze, onContextMenu, isDragging, className }: KanbanCardProps) {
+    const [showSnooze, setShowSnooze] = useState(false);
+
     const displayName = (lead.firstName && lead.lastName)
         ? `${lead.firstName} ${lead.lastName}`
         : lead.fullName || lead.firstName || lead.lastName || 'Unknown';
@@ -45,6 +63,18 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
         return `${days} days ago`;
     };
 
+    const handleSnooze = (e: React.MouseEvent, days: number) => {
+        e.stopPropagation();
+        onSnooze?.(lead.id, days);
+        setShowSnooze(false);
+    };
+
+    const handleQuickAction = (e: React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
+    const score = lead.leadScore ?? 0;
+
     return (
         <div
             onClick={() => onClick(lead)}
@@ -55,59 +85,158 @@ export function KanbanCard({ lead, onClick, onContextMenu, isDragging, className
                 }
             }}
             className={cn(
-                'group glass-card p-6 cursor-pointer transition-all duration-200',
+                'group glass-card p-5 cursor-pointer transition-all duration-200',
                 'hover:border-[hsl(222,47%,28%)] hover:bg-[hsl(222,47%,12%)]',
                 'active:scale-[0.98] active:bg-[hsl(222,47%,14%)]',
-                'min-h-[72px]', // Touch target minimum
+                'min-h-[72px]',
                 isDragging && 'opacity-50 scale-105 shadow-2xl rotate-1',
                 className
             )}
             style={{ borderRadius: '12px' }}
         >
-            {/* Name + Date of Entry */}
-            <div className="flex items-center justify-between mb-2.5">
+            {/* Row 1: Name + Score Badge */}
+            <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-[15px] text-white truncate pr-2">
                     {displayName}
                 </h4>
-                {lead.dateOfEntry && (
-                    <span className="text-[11px] text-gray-400 truncate flex-shrink-0 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(lead.dateOfEntry).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                )}
+                <span className={cn(
+                    'text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 flex items-center gap-1',
+                    getScoreColor(score)
+                )}>
+                    <Zap className="w-2.5 h-2.5" />
+                    {score}
+                </span>
             </div>
 
-            {/* Phone (display only — call/text actions are in the detail panel) */}
+            {/* Row 2: Phone + Quick Actions (call/text mobile-only, email always) */}
             {lead.phonePrimary && (
-                <div className="flex items-center gap-1.5 text-[13px] text-gray-200 mb-2.5">
-                    <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>{formatPhoneDisplay(lead.phonePrimary)}</span>
+                <div className="flex items-center justify-between gap-1.5 mb-2">
+                    <div className="flex items-center gap-1.5 text-[13px] text-gray-200">
+                        <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>{formatPhoneDisplay(lead.phonePrimary)}</span>
+                    </div>
+                    {/* Quick actions — appear on hover (desktop) or always (mobile) */}
+                    <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                        {/* Call — mobile only (nobody calls from desktop) */}
+                        <a
+                            href={`tel:${lead.phonePrimary}`}
+                            onClick={handleQuickAction}
+                            className="md:hidden p-1.5 rounded-md bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors"
+                            title="Call"
+                        >
+                            <Phone className="w-3.5 h-3.5" />
+                        </a>
+                        {/* Text — mobile only */}
+                        <a
+                            href={`sms:${lead.phonePrimary}`}
+                            onClick={handleQuickAction}
+                            className="md:hidden p-1.5 rounded-md bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-colors"
+                            title="Text"
+                        >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                        </a>
+                        {/* Email — desktop + mobile */}
+                        {lead.emailPrimary && (
+                            <a
+                                href={`mailto:${lead.emailPrimary}`}
+                                onClick={handleQuickAction}
+                                className="p-1.5 rounded-md bg-purple-500/15 text-purple-400 hover:bg-purple-500/25 transition-colors"
+                                title="Email"
+                            >
+                                <Mail className="w-3.5 h-3.5" />
+                            </a>
+                        )}
+                    </div>
                 </div>
             )}
 
-            {/* Latest note preview */}
+            {/* Row 3: Latest note preview */}
             {lead.latestNote && (
-                <div className="flex items-start gap-1.5 text-[12px] text-gray-300 mb-2.5">
+                <div className="flex items-start gap-1.5 text-[12px] text-gray-300 mb-2">
                     <FileText className="w-3 h-3 flex-shrink-0 mt-0.5" />
                     <span className="line-clamp-1 italic">{lead.latestNote}</span>
                 </div>
             )}
 
-            {/* Priority + Lead Source */}
-            <div className="flex items-center justify-between gap-2">
-                <PriorityBadge priority={lead.priority} className="text-[11px] px-1.5 py-0" />
+            {/* Row 4: Date of entry + Lead Source */}
+            <div className="flex items-center justify-between gap-2 mb-2">
+                {lead.dateOfEntry && (
+                    <span className="text-[11px] text-gray-400 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(lead.dateOfEntry).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                )}
                 {lead.leadSource ? (
-                    <div className="flex items-center gap-1 text-[12px] text-gray-300">
+                    <div className="flex items-center gap-1 text-[11px] text-gray-400">
                         <MapPin className="w-3 h-3" />
                         <span className="truncate max-w-[80px]">{lead.leadSource}</span>
                     </div>
-                ) : (
-                    <div className="flex items-center gap-1 text-[12px] text-gray-300">
+                ) : !lead.dateOfEntry && (
+                    <div className="flex items-center gap-1 text-[11px] text-gray-400">
                         <Clock className="w-3 h-3" />
                         <span>{getDaysText()}</span>
                     </div>
                 )}
             </div>
+
+            {/* Row 5: Priority + Snooze */}
+            <div className="flex items-center justify-between gap-2">
+                <PriorityBadge priority={lead.priority} className="text-[11px] px-1.5 py-0" />
+
+                {/* Snooze button */}
+                <div className="relative">
+                    {showSnooze ? (
+                        <div className="flex items-center gap-1 animate-in fade-in duration-150">
+                            <button
+                                onClick={(e) => handleSnooze(e, 1)}
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-colors whitespace-nowrap"
+                                title="Snooze 1 day"
+                            >
+                                1d
+                            </button>
+                            <button
+                                onClick={(e) => handleSnooze(e, 3)}
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-colors whitespace-nowrap"
+                                title="Snooze 3 days"
+                            >
+                                3d
+                            </button>
+                            <button
+                                onClick={(e) => handleSnooze(e, 7)}
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-colors whitespace-nowrap"
+                                title="Snooze 1 week"
+                            >
+                                1w
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setShowSnooze(false); }}
+                                className="text-[10px] px-1 py-0.5 rounded text-gray-500 hover:text-gray-300 transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setShowSnooze(true); }}
+                            className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                            title="Snooze follow-up"
+                        >
+                            <Timer className="w-3 h-3" />
+                            <span className="hidden md:inline">Snooze</span>
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Follow-up reminder bar */}
+            {lead.nextActionAt && (
+                <div className="mt-2 pt-2 border-t border-gray-700/50 flex items-center gap-1.5 text-[11px]">
+                    <SkipForward className="w-3 h-3 text-orange-400" />
+                    <span className="text-orange-300">
+                        Follow up: {new Date(lead.nextActionAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                </div>
+            )}
         </div>
     );
 }

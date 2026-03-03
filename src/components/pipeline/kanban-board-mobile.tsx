@@ -17,6 +17,7 @@ interface KanbanBoardMobileProps {
     pipeline: PipelineType;
     columns: Record<string, ColumnData>;
     onCardClick: (lead: KanbanLead) => void;
+    onSnooze?: (leadId: string, days: number) => void;
     onPipelineTransfer?: (leadId: string, targetPipeline: PipelineType) => void;
     isLoading?: boolean;
 }
@@ -25,6 +26,7 @@ export function KanbanBoardMobile({
     pipeline,
     columns,
     onCardClick,
+    onSnooze,
     onPipelineTransfer,
     isLoading,
 }: KanbanBoardMobileProps) {
@@ -101,6 +103,7 @@ export function KanbanBoardMobile({
                                 key={lead.id}
                                 lead={lead}
                                 onClick={onCardClick}
+                                onSnooze={onSnooze}
                                 onContextMenu={handleCardContextMenu}
                             />
                         ))}

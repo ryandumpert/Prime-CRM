@@ -18,6 +18,7 @@ interface KanbanBoardDesktopProps {
     columns: Record<string, ColumnData>;
     onCardClick: (lead: KanbanLead) => void;
     onCardMove: (leadId: string, newStatus: LeadStatusType) => void;
+    onSnooze?: (leadId: string, days: number) => void;
     onPipelineTransfer?: (leadId: string, targetPipeline: PipelineType) => void;
 }
 
@@ -26,6 +27,7 @@ export function KanbanBoardDesktop({
     columns,
     onCardClick,
     onCardMove,
+    onSnooze,
     onPipelineTransfer,
 }: KanbanBoardDesktopProps) {
     const [activeLead, setActiveLead] = useState<KanbanLead | null>(null);
@@ -124,6 +126,7 @@ export function KanbanBoardDesktop({
                                 hasMore={col.hasMore}
                                 pipeline={pipeline}
                                 onCardClick={onCardClick}
+                                onSnooze={onSnooze}
                                 onCardContextMenu={handleCardContextMenu}
                             />
                         );

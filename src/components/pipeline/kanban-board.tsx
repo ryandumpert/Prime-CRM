@@ -18,6 +18,7 @@ interface KanbanBoardProps {
     onCardClick: (lead: KanbanLead) => void;
     onCardMove: (leadId: string, newStatus: LeadStatusType) => void;
     onPipelineTransfer?: (leadId: string, targetPipeline: PipelineType) => void;
+    onSnooze?: (leadId: string, days: number) => void;
     isLoading?: boolean;
 }
 
@@ -27,6 +28,7 @@ export function KanbanBoard({
     onCardClick,
     onCardMove,
     onPipelineTransfer,
+    onSnooze,
     isLoading,
 }: KanbanBoardProps) {
     const [isMobile, setIsMobile] = useState(false);
@@ -55,6 +57,7 @@ export function KanbanBoard({
                 pipeline={pipeline}
                 columns={columns}
                 onCardClick={onCardClick}
+                onSnooze={onSnooze}
                 onPipelineTransfer={onPipelineTransfer}
                 isLoading={isLoading}
             />
@@ -67,6 +70,7 @@ export function KanbanBoard({
             columns={columns}
             onCardClick={onCardClick}
             onCardMove={onCardMove}
+            onSnooze={onSnooze}
             onPipelineTransfer={onPipelineTransfer}
         />
     );

@@ -169,6 +169,39 @@ export default function PipelinePage() {
         }
     };
 
+    const handleSnooze = async (leadId: string, days: number) => {
+        const nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + days);
+        nextDate.setHours(9, 0, 0, 0); // Set to 9 AM
+
+        // Optimistic update: update nextActionAt on the card
+        setColumns((prev) => {
+            const updated = { ...prev };
+            for (const [status, col] of Object.entries(updated)) {
+                const idx = col.leads.findIndex((l) => l.id === leadId);
+                if (idx !== -1) {
+                    const updatedLeads = [...col.leads];
+                    updatedLeads[idx] = { ...updatedLeads[idx], nextActionAt: nextDate.toISOString() };
+                    updated[status] = { ...col, leads: updatedLeads };
+                    break;
+                }
+            }
+            return updated;
+        });
+
+        // API call
+        try {
+            await fetch(`/api/leads/${leadId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nextActionAt: nextDate.toISOString() }),
+            });
+        } catch (error) {
+            console.error('Error snoozing lead:', error);
+            fetchKanbanData();
+        }
+    };
+
     // Calculate total leads across all columns
     const totalLeads = Object.values(columns).reduce((sum, col) => sum + col.count, 0);
 
@@ -198,6 +231,7 @@ export default function PipelinePage() {
                             onCardClick={handleCardClick}
                             onCardMove={handleCardMove}
                             onPipelineTransfer={handlePipelineTransfer}
+                            onSnooze={handleSnooze}
                             isLoading={isLoading}
                         />
                     </div>
