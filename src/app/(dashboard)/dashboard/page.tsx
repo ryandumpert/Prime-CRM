@@ -14,7 +14,8 @@ import {
     ArrowRight,
     Loader2,
     CalendarDays,
-    Phone
+    Phone,
+    AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 import { STATUS_LABELS, LeadStatusType, PriorityType, PIPELINE_LABELS, PipelineType } from '@/lib/constants';
@@ -28,6 +29,7 @@ interface DashboardStats {
     callListCount: number;
     contactedToday: number;
     statusCounts: Record<LeadStatusType, number>;
+    staleLeads?: { threePlus: number; sevenPlus: number; fourteenPlus: number };
     advisorStats?: Array<{
         advisorId: string;
         advisorName: string;
@@ -198,6 +200,53 @@ export default function DashboardPage() {
                 ))}
             </div>
 
+            {/* Stale Leads Alert */}
+            {stats?.staleLeads && stats.staleLeads.threePlus > 0 && (
+                <Card className="mb-6 border-orange-500/20">
+                    <div className="flex items-start gap-4">
+                        <div className="p-3 rounded-xl bg-red-500/15 shrink-0">
+                            <AlertTriangle className="w-6 h-6 text-red-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold mb-1">Leads Need Attention</h3>
+                            <p className="text-sm text-gray-400 mb-4">These leads haven&apos;t been contacted recently and may go cold</p>
+
+                            <div className="grid grid-cols-3 gap-3">
+                                {/* 14+ days */}
+                                {stats.staleLeads.fourteenPlus > 0 && (
+                                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                                        <div className="text-2xl font-bold text-red-400">{stats.staleLeads.fourteenPlus}</div>
+                                        <div className="text-xs text-red-300 mt-0.5">14+ days</div>
+                                        <div className="text-[10px] text-red-400/60 mt-0.5">Critical</div>
+                                    </div>
+                                )}
+                                {/* 7+ days */}
+                                {stats.staleLeads.sevenPlus > stats.staleLeads.fourteenPlus && (
+                                    <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                                        <div className="text-2xl font-bold text-orange-400">{stats.staleLeads.sevenPlus - stats.staleLeads.fourteenPlus}</div>
+                                        <div className="text-xs text-orange-300 mt-0.5">7–13 days</div>
+                                        <div className="text-[10px] text-orange-400/60 mt-0.5">Warning</div>
+                                    </div>
+                                )}
+                                {/* 3+ days */}
+                                {stats.staleLeads.threePlus > stats.staleLeads.sevenPlus && (
+                                    <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                        <div className="text-2xl font-bold text-amber-400">{stats.staleLeads.threePlus - stats.staleLeads.sevenPlus}</div>
+                                        <div className="text-xs text-amber-300 mt-0.5">3–6 days</div>
+                                        <div className="text-[10px] text-amber-400/60 mt-0.5">Caution</div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <Link href="/pipeline" className="shrink-0">
+                            <button className="btn btn-sm bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                                View in Pipeline <ArrowRight className="w-3.5 h-3.5 ml-1 inline" />
+                            </button>
+                        </Link>
+                    </div>
+                </Card>
+            )}
+
             {/* Quick Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 {/* Call List Preview */}
@@ -282,8 +331,8 @@ export default function DashboardPage() {
                             <div
                                 key={day.shortDay}
                                 className={`rounded-xl border transition-colors ${isToday
-                                        ? 'border-indigo-500/40 bg-indigo-500/5'
-                                        : 'border-[hsl(222,47%,18%)] bg-[hsl(222,47%,9%)]'
+                                    ? 'border-indigo-500/40 bg-indigo-500/5'
+                                    : 'border-[hsl(222,47%,18%)] bg-[hsl(222,47%,9%)]'
                                     }`}
                             >
                                 {/* Day header */}
@@ -296,8 +345,8 @@ export default function DashboardPage() {
                                         </span>
                                         {day.leads.length > 0 && (
                                             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${isToday
-                                                    ? 'bg-indigo-500/20 text-indigo-300'
-                                                    : 'bg-[hsl(222,47%,18%)] text-gray-300'
+                                                ? 'bg-indigo-500/20 text-indigo-300'
+                                                : 'bg-[hsl(222,47%,18%)] text-gray-300'
                                                 }`}>
                                                 {day.leads.length}
                                             </span>
@@ -324,7 +373,7 @@ export default function DashboardPage() {
                                                         {getLeadName(lead)}
                                                     </span>
                                                     <div className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${lead.priority === 'high' ? 'bg-red-500' :
-                                                            lead.priority === 'normal' ? 'bg-blue-500' : 'bg-gray-500'
+                                                        lead.priority === 'normal' ? 'bg-blue-500' : 'bg-gray-500'
                                                         }`} />
                                                 </div>
                                                 <div className="flex items-center justify-between gap-2">

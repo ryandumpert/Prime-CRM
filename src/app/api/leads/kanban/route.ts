@@ -57,6 +57,7 @@ export async function GET(request: NextRequest) {
                     pipeline: true,
                     dateOfEntry: true,
                     leadSource: true,
+                    loanProduct: true,
                     assignedAdvisor: {
                         select: {
                             id: true,

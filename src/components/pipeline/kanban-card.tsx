@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { formatPhoneDisplay, daysSinceContact } from '@/lib/utils';
 import { PriorityBadge } from '@/components/ui';
-import { Phone, Clock, FileText, Calendar, MapPin, Mail, MessageSquare, Zap, Timer, SkipForward } from 'lucide-react';
+import { Phone, Clock, FileText, Calendar, MapPin, Mail, MessageSquare, Zap, Timer, SkipForward, AlertTriangle } from 'lucide-react';
 
 export interface KanbanLead {
     id: string;
@@ -22,6 +22,7 @@ export interface KanbanLead {
     nextActionAt: string | null;
     dateOfEntry: string | null;
     leadSource: string | null;
+    loanProduct: string | null;
     leadScore: number;
     interactionCount: number;
     assignedAdvisor: { id: string; displayName: string } | null;
@@ -54,6 +55,30 @@ export function KanbanCard({ lead, onClick, onSnooze, onContextMenu, isDragging,
     const displayName = (lead.firstName && lead.lastName)
         ? `${lead.firstName} ${lead.lastName}`
         : lead.fullName || lead.firstName || lead.lastName || 'Unknown';
+
+    // Stale lead detection
+    const daysSinceLastContact: number = lead.lastContactedAt
+        ? (daysSinceContact(lead.lastContactedAt) ?? 999)
+        : lead.dateOfEntry
+            ? (daysSinceContact(lead.dateOfEntry) ?? 999)
+            : 999;
+
+    const staleLevel: 'critical' | 'warning' | 'caution' | null =
+        daysSinceLastContact >= 14 ? 'critical' :
+            daysSinceLastContact >= 7 ? 'warning' :
+                daysSinceLastContact >= 3 ? 'caution' :
+                    null;
+
+    const staleBorderClass =
+        staleLevel === 'critical' ? 'ring-2 ring-red-500/60 border-red-500/40' :
+            staleLevel === 'warning' ? 'ring-2 ring-orange-500/50 border-orange-500/30' :
+                staleLevel === 'caution' ? 'ring-1 ring-amber-500/40 border-amber-500/25' :
+                    '';
+
+    const staleGlowClass =
+        staleLevel === 'critical' ? 'shadow-[0_0_12px_rgba(239,68,68,0.25)]' :
+            staleLevel === 'warning' ? 'shadow-[0_0_8px_rgba(249,115,22,0.2)]' :
+                '';
 
     const getDaysText = () => {
         if (!lead.lastContactedAt) return 'Never contacted';
@@ -90,6 +115,8 @@ export function KanbanCard({ lead, onClick, onSnooze, onContextMenu, isDragging,
                 'active:scale-[0.98] active:bg-[hsl(222,47%,14%)]',
                 'min-h-[72px]',
                 isDragging && 'opacity-50 scale-105 shadow-2xl rotate-1',
+                staleBorderClass,
+                staleGlowClass,
                 className
             )}
             style={{ borderRadius: '12px' }}
@@ -234,6 +261,32 @@ export function KanbanCard({ lead, onClick, onSnooze, onContextMenu, isDragging,
                     <SkipForward className="w-3 h-3 text-orange-400" />
                     <span className="text-orange-300">
                         Follow up: {new Date(lead.nextActionAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                </div>
+            )}
+
+            {/* Stale lead warning */}
+            {staleLevel && (
+                <div className={cn(
+                    'mt-2 pt-2 border-t flex items-center gap-1.5 text-[11px]',
+                    staleLevel === 'critical' ? 'border-red-500/30' :
+                        staleLevel === 'warning' ? 'border-orange-500/20' :
+                            'border-amber-500/15'
+                )}>
+                    <AlertTriangle className={cn(
+                        'w-3 h-3 flex-shrink-0',
+                        staleLevel === 'critical' ? 'text-red-400 animate-pulse' :
+                            staleLevel === 'warning' ? 'text-orange-400' :
+                                'text-amber-400'
+                    )} />
+                    <span className={cn(
+                        staleLevel === 'critical' ? 'text-red-300' :
+                            staleLevel === 'warning' ? 'text-orange-300' :
+                                'text-amber-300'
+                    )}>
+                        {daysSinceLastContact >= 14 ? `${daysSinceLastContact}d — Needs urgent attention` :
+                            daysSinceLastContact >= 7 ? `${daysSinceLastContact}d — Going cold` :
+                                `${daysSinceLastContact}d since contact`}
                     </span>
                 </div>
             )}

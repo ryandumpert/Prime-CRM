@@ -135,6 +135,31 @@ export async function GET(request: NextRequest) {
             });
         }
 
+        // Stale lead counts (for dashboard alert)
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const fourteenDaysAgo = new Date();
+        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+        const staleWhere = {
+            ...baseWhere,
+            status: { notIn: TERMINAL_STATUSES },
+        };
+
+        const [stale3, stale7, stale14] = await Promise.all([
+            prisma.lead.count({
+                where: { ...staleWhere, OR: [{ lastContactedAt: null }, { lastContactedAt: { lt: threeDaysAgo } }] }
+            }),
+            prisma.lead.count({
+                where: { ...staleWhere, OR: [{ lastContactedAt: null }, { lastContactedAt: { lt: sevenDaysAgo } }] }
+            }),
+            prisma.lead.count({
+                where: { ...staleWhere, OR: [{ lastContactedAt: null }, { lastContactedAt: { lt: fourteenDaysAgo } }] }
+            }),
+        ]);
+
         return NextResponse.json({
             data: {
                 totalLeads,
@@ -146,6 +171,7 @@ export async function GET(request: NextRequest) {
                 statusCounts,
                 advisorStats,
                 pipelineCounts,
+                staleLeads: { threePlus: stale3, sevenPlus: stale7, fourteenPlus: stale14 },
             },
         });
     } catch (error) {
