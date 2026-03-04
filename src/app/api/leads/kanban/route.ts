@@ -58,6 +58,8 @@ export async function GET(request: NextRequest) {
                     dateOfEntry: true,
                     leadSource: true,
                     loanProduct: true,
+                    callAttemptCount: true,
+                    lastCallAttemptAt: true,
                     assignedAdvisor: {
                         select: {
                             id: true,

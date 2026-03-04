@@ -66,11 +66,48 @@ export async function POST(
             },
         });
 
-        // Update last_contacted_at if this interaction qualifies (per blueprint.md Contact Semantics)
-        if (shouldUpdateLastContacted(type, outcome)) {
+        // Build lead update data
+        const leadUpdateData: any = {};
+
+        // Update last_contacted_at based on interaction type and outcome
+        if (type === 'call' && outcome) {
+            // For calls, use the dynamic countsAsContact flag from CrmSettings
+            let countsAsContact = false;
+            try {
+                const setting = await prisma.crmSettings.findUnique({
+                    where: { key: 'call_outcomes' },
+                });
+                if (setting) {
+                    const outcomes = setting.value as unknown as Array<{ id: string; countsAsContact: boolean }>;
+                    const found = outcomes.find(o => o.id === outcome);
+                    countsAsContact = found?.countsAsContact ?? false;
+                } else {
+                    // Fallback: use legacy logic for backward compatibility
+                    countsAsContact = ['connected', 'left_voicemail', 'connected_interested',
+                        'connected_not_interested', 'connected_callback', 'connected_needs_docs'].includes(outcome);
+                }
+            } catch {
+                countsAsContact = shouldUpdateLastContacted(type, outcome);
+            }
+            if (countsAsContact) {
+                leadUpdateData.lastContactedAt = occurredAt;
+            }
+        } else if (shouldUpdateLastContacted(type, outcome)) {
+            // For text/email, use the existing static rules
+            leadUpdateData.lastContactedAt = occurredAt;
+        }
+
+        // Increment call attempt counter for call-type interactions
+        if (type === 'call') {
+            leadUpdateData.callAttemptCount = { increment: 1 };
+            leadUpdateData.lastCallAttemptAt = occurredAt;
+        }
+
+        // Apply lead updates if any
+        if (Object.keys(leadUpdateData).length > 0) {
             await prisma.lead.update({
                 where: { id: leadId },
-                data: { lastContactedAt: occurredAt },
+                data: leadUpdateData,
             });
         }
 

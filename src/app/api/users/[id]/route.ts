@@ -25,6 +25,7 @@ export async function GET(
                 displayName: true,
                 email: true,
                 active: true,
+                minimumDailyCalls: true,
                 createdAt: true,
                 updatedAt: true,
                 _count: {
@@ -57,7 +58,7 @@ export async function PATCH(
 
         const { id } = await params;
         const body = await request.json();
-        const { displayName, email, password, role, active } = body;
+        const { displayName, email, password, role, active, minimumDailyCalls } = body;
 
         const existingUser = await prisma.user.findUnique({ where: { id } });
         if (!existingUser) {
@@ -69,6 +70,7 @@ export async function PATCH(
         if (email !== undefined) updateData.email = email.toLowerCase();
         if (role !== undefined) updateData.role = role;
         if (active !== undefined) updateData.active = active;
+        if (minimumDailyCalls !== undefined) updateData.minimumDailyCalls = Math.max(0, parseInt(minimumDailyCalls) || 0);
         if (password) {
             updateData.password = await bcrypt.hash(password, 10);
         }
@@ -82,6 +84,7 @@ export async function PATCH(
                 displayName: true,
                 email: true,
                 active: true,
+                minimumDailyCalls: true,
                 createdAt: true,
                 updatedAt: true,
             },

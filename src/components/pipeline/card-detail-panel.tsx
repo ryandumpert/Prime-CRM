@@ -15,6 +15,7 @@ import {
     FileText,
     CalendarDays,
     Check,
+    PhoneOutgoing,
 } from 'lucide-react';
 import {
     STATUS_LABELS,
@@ -31,6 +32,7 @@ import { NoteInput } from '@/components/notes/note-input';
 import { NotesFeed } from '@/components/notes/notes-feed';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
+import { QuickCallModal } from '@/components/calls/quick-call-modal';
 
 interface CardDetailPanelProps {
     lead: KanbanLead | null;
@@ -53,6 +55,7 @@ export function CardDetailPanel({
     const [nextActionDateISO, setNextActionDateISO] = useState('');
     const [isSavingDate, setIsSavingDate] = useState(false);
     const [dateSaved, setDateSaved] = useState(false);
+    const [showCallModal, setShowCallModal] = useState(false);
 
     // Sync nextActionDateISO state with lead data when lead changes
     useEffect(() => {
@@ -198,6 +201,20 @@ export function CardDetailPanel({
                             )}
                         </div>
 
+                        {/* Log Call button - mobile */}
+                        {lead.phonePrimary && (
+                            <button
+                                onClick={() => setShowCallModal(true)}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/30 font-medium text-sm min-h-[48px] transition-colors hover:bg-orange-500/25 mb-5"
+                            >
+                                <PhoneOutgoing className="w-4 h-4" />
+                                <span>Log Call Attempt</span>
+                                {lead.callAttemptCount > 0 && (
+                                    <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300">#{lead.callAttemptCount + 1}</span>
+                                )}
+                            </button>
+                        )}
+
                         {/* Contact info */}
                         <div className="space-y-3 mb-5">
                             {lead.phonePrimary && (
@@ -216,6 +233,19 @@ export function CardDetailPanel({
                                 <Clock className="w-3.5 h-3.5 text-gray-300" />
                                 <span className="text-gray-200">Last contact: {getDaysText()}</span>
                             </div>
+                            {lead.callAttemptCount > 0 && (
+                                <div className="flex items-center gap-2.5 text-sm">
+                                    <PhoneOutgoing className="w-3.5 h-3.5 text-gray-300" />
+                                    <span className="text-gray-200">
+                                        {lead.callAttemptCount} call attempt{lead.callAttemptCount !== 1 ? 's' : ''}
+                                        {lead.lastCallAttemptAt && (
+                                            <span className="text-gray-400 ml-1">
+                                                · last {new Date(lead.lastCallAttemptAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
+                            )}
                             {lead.assignedAdvisor && (
                                 <div className="flex items-center gap-2.5 text-sm">
                                     <User className="w-3.5 h-3.5 text-gray-300" />
@@ -328,9 +358,23 @@ export function CardDetailPanel({
                         </button>
                     </div>
                 </div>
+
+                <QuickCallModal
+                    isOpen={showCallModal}
+                    onClose={() => setShowCallModal(false)}
+                    leadId={lead.id}
+                    leadName={displayName}
+                    callAttemptCount={lead.callAttemptCount}
+                    onSuccess={() => {
+                        setShowCallModal(false);
+                        setNoteRefreshKey(k => k + 1);
+                    }}
+                />
             </>
         );
     }
+
+    // Wrap with call modal for both mobile and desktop
 
     // ── Desktop: Slide-out Panel ──
     return (
@@ -391,6 +435,20 @@ export function CardDetailPanel({
                                 </div>
                             </div>
                         )}
+
+                        {/* Log Call button - desktop */}
+                        {lead.phonePrimary && (
+                            <button
+                                onClick={() => setShowCallModal(true)}
+                                className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg bg-orange-500/15 text-orange-400 text-sm font-semibold hover:bg-orange-500/25 transition-colors border border-orange-500/20"
+                            >
+                                <PhoneOutgoing className="w-4 h-4" />
+                                Log Call
+                                {lead.callAttemptCount > 0 && (
+                                    <span className="text-xs px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300">#{lead.callAttemptCount + 1}</span>
+                                )}
+                            </button>
+                        )}
                         {lead.emailPrimary && (
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2.5 text-sm">
@@ -409,6 +467,19 @@ export function CardDetailPanel({
                             <Clock className="w-4 h-4 text-gray-300" />
                             <span className="text-gray-200">Last contact: {getDaysText()}</span>
                         </div>
+                        {lead.callAttemptCount > 0 && (
+                            <div className="flex items-center gap-2.5 text-sm">
+                                <PhoneOutgoing className="w-4 h-4 text-gray-300" />
+                                <span className="text-gray-200">
+                                    {lead.callAttemptCount} call attempt{lead.callAttemptCount !== 1 ? 's' : ''}
+                                    {lead.lastCallAttemptAt && (
+                                        <span className="text-gray-400 ml-1">
+                                            · last {new Date(lead.lastCallAttemptAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                        </span>
+                                    )}
+                                </span>
+                            </div>
+                        )}
                         {lead.assignedAdvisor && (
                             <div className="flex items-center gap-2.5 text-sm">
                                 <User className="w-4 h-4 text-gray-300" />
@@ -522,6 +593,18 @@ export function CardDetailPanel({
                     </button>
                 </div>
             </div>
+
+            <QuickCallModal
+                isOpen={showCallModal}
+                onClose={() => setShowCallModal(false)}
+                leadId={lead.id}
+                leadName={displayName}
+                callAttemptCount={lead.callAttemptCount}
+                onSuccess={() => {
+                    setShowCallModal(false);
+                    setNoteRefreshKey(k => k + 1);
+                }}
+            />
         </>
     );
 }

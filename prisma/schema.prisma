@@ -68,15 +68,16 @@ enum InteractionDirection {
 // === CORE ENTITIES ===
 
 model User {
-  id          String   @id @default(uuid())
-  role        Role     @default(advisor)
-  displayName String   @map("display_name")
-  email       String   @unique
-  password    String   // Hashed password
-  avatarUrl   String?  @map("avatar_url")
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                String   @id @default(uuid())
+  role              Role     @default(advisor)
+  displayName       String   @map("display_name")
+  email             String   @unique
+  password          String   // Hashed password
+  avatarUrl         String?  @map("avatar_url")
+  active            Boolean  @default(true)
+  minimumDailyCalls Int      @default(20) @map("minimum_daily_calls")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   // Relations
   assignedLeads Lead[]        @relation("AdvisorLeads")
@@ -116,6 +117,10 @@ model Lead {
   lastContactedAt       DateTime?  @map("last_contacted_at")
   nextActionAt          DateTime?  @map("next_action_at")
   priority              Priority   @default(normal)
+
+  // Call Attempt Tracking
+  callAttemptCount      Int        @default(0) @map("call_attempt_count")
+  lastCallAttemptAt     DateTime?  @map("last_call_attempt_at")
 
   // Compliance
   doNotCall             Boolean    @default(false) @map("do_not_call")
@@ -224,4 +229,14 @@ model MessageTemplate {
   @@index([type])
   @@index([active])
   @@map("message_templates")
+}
+
+model CrmSettings {
+  id        String   @id @default("global")
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy String?  @map("updated_by")
+
+  @@map("crm_settings")
 }

@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
                 displayName: true,
                 email: true,
                 active: true,
+                minimumDailyCalls: true,
                 createdAt: true,
                 updatedAt: true,
                 _count: {

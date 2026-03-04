@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { formatPhoneDisplay, daysSinceContact } from '@/lib/utils';
 import { PriorityBadge } from '@/components/ui';
-import { Phone, Clock, FileText, Calendar, MapPin, Mail, MessageSquare, Zap, Timer, SkipForward, AlertTriangle } from 'lucide-react';
+import { Phone, Clock, FileText, Calendar, MapPin, Mail, MessageSquare, Zap, Timer, SkipForward, AlertTriangle, PhoneOutgoing } from 'lucide-react';
 
 export interface KanbanLead {
     id: string;
@@ -25,6 +25,8 @@ export interface KanbanLead {
     loanProduct: string | null;
     leadScore: number;
     interactionCount: number;
+    callAttemptCount: number;
+    lastCallAttemptAt: string | null;
     assignedAdvisor: { id: string; displayName: string } | null;
 }
 
@@ -121,18 +123,32 @@ export function KanbanCard({ lead, onClick, onSnooze, onContextMenu, isDragging,
             )}
             style={{ borderRadius: '12px' }}
         >
-            {/* Row 1: Name + Score Badge */}
+            {/* Row 1: Name + Badge (Cold Leads: attempt count, Others: lead score) */}
             <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-[15px] text-white truncate pr-2">
                     {displayName}
                 </h4>
-                <span className={cn(
-                    'text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 flex items-center gap-1',
-                    getScoreColor(score)
-                )}>
-                    <Zap className="w-2.5 h-2.5" />
-                    {score}
-                </span>
+                {lead.pipeline === 'cold_leads' ? (
+                    <span className={cn(
+                        'text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 flex items-center gap-1',
+                        lead.callAttemptCount === 0
+                            ? 'text-gray-400 bg-gray-500/15 border-gray-500/30'
+                            : lead.callAttemptCount <= 2
+                                ? 'text-orange-400 bg-orange-500/15 border-orange-500/30'
+                                : 'text-red-400 bg-red-500/15 border-red-500/30'
+                    )}>
+                        <PhoneOutgoing className="w-2.5 h-2.5" />
+                        {lead.callAttemptCount}
+                    </span>
+                ) : (
+                    <span className={cn(
+                        'text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 flex items-center gap-1',
+                        getScoreColor(score)
+                    )}>
+                        <Zap className="w-2.5 h-2.5" />
+                        {score}
+                    </span>
+                )}
             </div>
 
             {/* Row 2: Phone + Quick Actions (call/text mobile-only, email always) */}
@@ -185,14 +201,29 @@ export function KanbanCard({ lead, onClick, onSnooze, onContextMenu, isDragging,
                 </div>
             )}
 
-            {/* Row 4: Date of entry + Lead Source */}
+            {/* Row 4: Call attempts + Date of entry + Lead Source */}
             <div className="flex items-center justify-between gap-2 mb-2">
-                {lead.dateOfEntry && (
-                    <span className="text-[11px] text-gray-400 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(lead.dateOfEntry).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                )}
+                <div className="flex items-center gap-2">
+                    {lead.callAttemptCount > 0 && (
+                        <span className={cn(
+                            'text-[11px] font-medium px-1.5 py-0.5 rounded-md flex items-center gap-1',
+                            lead.callAttemptCount >= 5
+                                ? 'bg-red-500/15 text-red-400 border border-red-500/25'
+                                : lead.callAttemptCount >= 3
+                                    ? 'bg-orange-500/15 text-orange-400 border border-orange-500/25'
+                                    : 'bg-blue-500/15 text-blue-400 border border-blue-500/25'
+                        )}>
+                            <PhoneOutgoing className="w-3 h-3" />
+                            ×{lead.callAttemptCount}
+                        </span>
+                    )}
+                    {lead.dateOfEntry && (
+                        <span className="text-[11px] text-gray-400 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(lead.dateOfEntry).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                    )}
+                </div>
                 {lead.leadSource ? (
                     <div className="flex items-center gap-1 text-[11px] text-gray-400">
                         <MapPin className="w-3 h-3" />

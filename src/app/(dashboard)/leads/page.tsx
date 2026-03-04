@@ -26,11 +26,13 @@ import {
     UserPlus,
     ArrowRightCircle,
     Flag,
-    Download
+    Download,
+    PhoneOutgoing
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
 import { LEAD_STATUSES, STATUS_LABELS, LeadStatusType, PriorityType } from '@/lib/constants';
+import { QuickCallModal } from '@/components/calls/quick-call-modal';
 
 interface Lead {
     id: string;
@@ -47,6 +49,7 @@ interface Lead {
     doNotCall: boolean;
     doNotText: boolean;
     doNotEmail: boolean;
+    callAttemptCount: number;
 }
 
 interface LeadsResponse {
@@ -78,6 +81,7 @@ export default function LeadsPage() {
     const [isBulkUpdating, setIsBulkUpdating] = useState(false);
     const [advisors, setAdvisors] = useState<{ id: string; displayName: string }[]>([]);
     const [isExporting, setIsExporting] = useState(false);
+    const [quickCallLead, setQuickCallLead] = useState<Lead | null>(null);
 
     const isAdmin = session?.user?.role === 'admin';
     const pageSize = 20;
@@ -493,6 +497,15 @@ export default function LeadsPage() {
                                                 <div className="action-row">
                                                     {lead.phonePrimary && (
                                                         <button
+                                                            className="quick-action text-orange-400 hover:text-orange-300 transition-colors"
+                                                            title={`Log Call (Attempt #${(lead.callAttemptCount || 0) + 1})`}
+                                                            onClick={() => setQuickCallLead(lead)}
+                                                        >
+                                                            <PhoneOutgoing className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                    {lead.phonePrimary && (
+                                                        <button
                                                             className={`quick-action call ${lead.doNotCall ? 'disabled' : ''}`}
                                                             title={lead.doNotCall ? 'Do Not Call' : 'Call'}
                                                             onClick={() => !lead.doNotCall && router.push(`/leads/${lead.id}?action=call`)}
@@ -575,6 +588,15 @@ export default function LeadsPage() {
                                             )}
                                         </span>
                                         <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                                            {lead.phonePrimary && (
+                                                <button
+                                                    className="quick-action text-orange-400"
+                                                    title={`Log Call (Attempt #${(lead.callAttemptCount || 0) + 1})`}
+                                                    onClick={() => setQuickCallLead(lead)}
+                                                >
+                                                    <PhoneOutgoing className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
                                             {lead.phonePrimary && (
                                                 <button
                                                     className={`quick-action call ${lead.doNotCall ? 'disabled' : ''}`}
@@ -779,6 +801,20 @@ export default function LeadsPage() {
                         &times;
                     </button>
                 </div>
+            )}
+            {/* Quick Call Modal */}
+            {quickCallLead && (
+                <QuickCallModal
+                    isOpen={!!quickCallLead}
+                    onClose={() => setQuickCallLead(null)}
+                    leadId={quickCallLead.id}
+                    leadName={getDisplayName(quickCallLead)}
+                    callAttemptCount={quickCallLead.callAttemptCount || 0}
+                    onSuccess={() => {
+                        setQuickCallLead(null);
+                        fetchLeads();
+                    }}
+                />
             )}
         </>
     );

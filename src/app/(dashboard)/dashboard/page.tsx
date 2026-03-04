@@ -15,7 +15,8 @@ import {
     Loader2,
     CalendarDays,
     Phone,
-    AlertTriangle
+    AlertTriangle,
+    PhoneOutgoing
 } from 'lucide-react';
 import Link from 'next/link';
 import { STATUS_LABELS, LeadStatusType, PriorityType, PIPELINE_LABELS, PipelineType } from '@/lib/constants';
@@ -54,17 +55,28 @@ interface ScheduleLead {
     assignedAdvisor: { id: string; displayName: string } | null;
 }
 
+interface QuotaData {
+    advisorId: string;
+    advisorName: string;
+    minimumDailyCalls: number;
+    callsToday: number;
+    dailyProgress: number;
+    quotaMet: boolean;
+}
+
 export default function DashboardPage() {
     const { data: session } = useSession();
     const router = useRouter();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [schedule, setSchedule] = useState<ScheduleLead[]>([]);
+    const [quotas, setQuotas] = useState<QuotaData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const isAdmin = session?.user?.role === 'admin';
 
     useEffect(() => {
         fetchStats();
         fetchSchedule();
+        fetchQuotas();
     }, []);
 
     const fetchStats = async () => {
@@ -90,6 +102,18 @@ export default function DashboardPage() {
             }
         } catch (error) {
             console.error('Error fetching schedule:', error);
+        }
+    };
+
+    const fetchQuotas = async () => {
+        try {
+            const res = await fetch('/api/reports/call-quotas');
+            const data = await res.json();
+            if (data.data) {
+                setQuotas(data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching quotas:', error);
         }
     };
 
@@ -408,7 +432,7 @@ export default function DashboardPage() {
                         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Advisor</span>
                         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Leads</span>
                         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Call List</span>
-                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Today</span>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Daily Quota</span>
                         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Week</span>
                     </div>
 
@@ -444,12 +468,37 @@ export default function DashboardPage() {
                                     </span>
                                 </div>
 
-                                {/* Contacted Today */}
+                                {/* Daily Quota Progress */}
                                 <div className="text-center">
-                                    <span className={`text-lg font-bold ${advisor.contactedToday > 0 ? 'text-green-400' : 'text-gray-400'
-                                        }`}>
-                                        {advisor.contactedToday}
-                                    </span>
+                                    {(() => {
+                                        const quota = quotas.find(q => q.advisorId === advisor.advisorId);
+                                        if (!quota) {
+                                            return (
+                                                <span className={`text-lg font-bold ${advisor.contactedToday > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                                                    {advisor.contactedToday}
+                                                </span>
+                                            );
+                                        }
+                                        return (
+                                            <div className="flex flex-col items-center gap-1">
+                                                <span className={`text-sm font-bold ${quota.quotaMet ? 'text-green-400' :
+                                                        quota.dailyProgress >= 50 ? 'text-yellow-400' :
+                                                            'text-red-400'
+                                                    }`}>
+                                                    {quota.callsToday}/{quota.minimumDailyCalls}
+                                                </span>
+                                                <div className="w-full h-1.5 rounded-full bg-gray-700 overflow-hidden">
+                                                    <div
+                                                        className={`h-full rounded-full transition-all duration-500 ${quota.quotaMet ? 'bg-green-500' :
+                                                                quota.dailyProgress >= 50 ? 'bg-yellow-500' :
+                                                                    'bg-red-500'
+                                                            }`}
+                                                        style={{ width: `${Math.min(quota.dailyProgress, 100)}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
 
                                 {/* This Week */}

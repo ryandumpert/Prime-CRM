@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button, Input } from '@/components/ui';
 import { LogIn, AlertCircle } from 'lucide-react';
+import { CompanyLogo } from '@/components/company-logo';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -49,8 +50,8 @@ export default function LoginPage() {
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30 mb-4">
-                        <span className="text-white font-bold text-2xl">P</span>
+                    <div className="inline-flex mb-4">
+                        <CompanyLogo size={64} className="rounded-2xl" />
                     </div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                         Prime CRM

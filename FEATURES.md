@@ -26,6 +26,7 @@
 | 8 | **Email/Text Templates** — Pre-built message templates for common scenarios (initial outreach, follow-up after voicemail, doc request, rate quote follow-up). Admin-managed template library. | ✅ Done | Mar 3, 2026 |
 | 9 | **Stale Lead Alerts** — Visual indicators on pipeline board and dashboard for leads untouched in 3/7/14 days. Glowing border, warning icon, or "Needs Attention" filter. | ✅ Done | Mar 3, 2026 |
 | 10 | **Loan Product Pipeline Filters** — Filter pipeline board by loan product (DSCR, PML, Conventional, etc.) so advisors can focus on one product type at a time. | ✅ Done | Mar 3, 2026 |
+| 25 | **Call Attempt Tracking & Daily Quotas** — Track number of call attempts per lead with dates. Attempt badges on Kanban cards and detail panels. Admin-configurable minimum daily call quotas per advisor with progress bars on dashboard. | ✅ Done | Mar 4, 2026 |
 
 ---
 
@@ -67,4 +68,4 @@
 
 ---
 
-*Last updated: March 3, 2026*
+*Last updated: March 4, 2026*

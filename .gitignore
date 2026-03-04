@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Debug/utility scripts
 scripts/check-leads.mjs
+
+# User uploads
+/public/uploads/

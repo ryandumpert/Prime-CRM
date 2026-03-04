@@ -21,13 +21,13 @@ import {
     ChevronUp,
     Download
 } from 'lucide-react';
+import { PhoneOutgoing } from 'lucide-react';
 import { formatPhoneDisplay, formatDateTime, daysSinceContact } from '@/lib/utils';
 import {
     LeadStatusType,
     PriorityType,
-    CALL_OUTCOMES,
-    OUTCOME_LABELS
 } from '@/lib/constants';
+import { useCallOutcomes } from '@/hooks/use-call-outcomes';
 import { NoteInput } from '@/components/notes/note-input';
 import { NotesFeed } from '@/components/notes/notes-feed';
 
@@ -42,6 +42,7 @@ interface Lead {
     priority: PriorityType;
     lastContactedAt: string | null;
     nextActionAt: string | null;
+    callAttemptCount: number;
     doNotCall: boolean;
     doNotText: boolean;
     doNotEmail: boolean;
@@ -251,6 +252,12 @@ export default function CallListPage() {
                                                     <Clock className="w-3 h-3" />
                                                     {getDaysText(lead.lastContactedAt)}
                                                 </span>
+                                                {lead.callAttemptCount > 0 && (
+                                                    <span className="flex items-center gap-1 text-blue-400 text-xs md:text-sm">
+                                                        <PhoneOutgoing className="w-3 h-3" />
+                                                        ×{lead.callAttemptCount}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -450,6 +457,7 @@ function CallOutcomeModal({
     onSubmit: (outcome: string, summary: string) => void;
     leadName: string;
 }) {
+    const { groupedOutcomes } = useCallOutcomes();
     const [outcome, setOutcome] = useState('');
     const [summary, setSummary] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -463,20 +471,38 @@ function CallOutcomeModal({
         setIsLoading(false);
     };
 
+    const categoryLabels: Record<string, string> = {
+        positive: '✅ Positive',
+        neutral: '⚪ Neutral',
+        negative: '❌ Negative',
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Log Call Result">
             <p className="text-gray-300 mb-4">How did the call with <strong>{leadName}</strong> go?</p>
             <form onSubmit={handleSubmit} className="space-y-4">
-                <Select
-                    label="Outcome"
-                    options={[
-                        { value: '', label: 'Select outcome...' },
-                        ...CALL_OUTCOMES.map(o => ({ value: o, label: OUTCOME_LABELS[o] })),
-                    ]}
-                    value={outcome}
-                    onChange={(e) => setOutcome(e.target.value)}
-                    required
-                />
+                <div>
+                    <label className="label">Outcome <span className="text-red-400">*</span></label>
+                    <select
+                        className="input"
+                        value={outcome}
+                        onChange={(e) => setOutcome(e.target.value)}
+                        required
+                    >
+                        <option value="">Select outcome...</option>
+                        {(['positive', 'neutral', 'negative'] as const).map(cat => {
+                            const items = groupedOutcomes[cat];
+                            if (items.length === 0) return null;
+                            return (
+                                <optgroup key={cat} label={categoryLabels[cat]}>
+                                    {items.map(o => (
+                                        <option key={o.id} value={o.id}>{o.label}</option>
+                                    ))}
+                                </optgroup>
+                            );
+                        })}
+                    </select>
+                </div>
 
                 <Input
                     label="Summary"

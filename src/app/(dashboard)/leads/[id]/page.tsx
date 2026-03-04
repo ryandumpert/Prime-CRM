@@ -31,11 +31,11 @@ import {
     LEAD_STATUSES,
     LeadStatusType,
     PriorityType,
-    CALL_OUTCOMES,
     TEXT_OUTCOMES,
     EMAIL_OUTCOMES,
     OUTCOME_LABELS
 } from '@/lib/constants';
+import { useCallOutcomes } from '@/hooks/use-call-outcomes';
 import { NoteInput } from '@/components/notes/note-input';
 import { NotesFeed } from '@/components/notes/notes-feed';
 
@@ -551,6 +551,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 }
 
 function TimelineItem({ interaction }: { interaction: Interaction }) {
+    const { getLabel: getCallLabel, getCategoryColor } = useCallOutcomes();
+
     const getIcon = () => {
         switch (interaction.type) {
             case 'call':
@@ -582,11 +584,22 @@ function TimelineItem({ interaction }: { interaction: Interaction }) {
 
     const getOutcomeColor = () => {
         if (!interaction.outcome) return '';
-        const successOutcomes = ['connected', 'sent', 'delivered', 'opened', 'left_voicemail'];
-        const failOutcomes = ['failed', 'bounced', 'wrong_number', 'no_answer'];
+        if (interaction.type === 'call') {
+            return getCategoryColor(interaction.outcome);
+        }
+        // Text/email use the static mapping
+        const successOutcomes = ['sent', 'delivered', 'opened'];
+        const failOutcomes = ['failed', 'bounced'];
         if (successOutcomes.includes(interaction.outcome)) return 'text-green-400';
         if (failOutcomes.includes(interaction.outcome)) return 'text-red-400';
         return 'text-blue-400';
+    };
+
+    const getOutcomeLabel = (outcomeId: string): string => {
+        if (interaction.type === 'call') {
+            return getCallLabel(outcomeId);
+        }
+        return OUTCOME_LABELS[outcomeId] || outcomeId;
     };
 
     return (
@@ -602,7 +615,7 @@ function TimelineItem({ interaction }: { interaction: Interaction }) {
                                 {getTypeLabel()}
                                 {interaction.outcome && (
                                     <span className={`ml-2 text-sm ${getOutcomeColor()}`}>
-                                        • {OUTCOME_LABELS[interaction.outcome] || interaction.outcome}
+                                        • {getOutcomeLabel(interaction.outcome)}
                                     </span>
                                 )}
                             </p>
@@ -640,6 +653,7 @@ function InteractionModal({
     leadId: string;
     onSuccess: () => void;
 }) {
+    const { outcomes: callOutcomes, groupedOutcomes } = useCallOutcomes();
     const [outcome, setOutcome] = useState('');
     const [summary, setSummary] = useState('');
     const [body, setBody] = useState('');
@@ -666,19 +680,6 @@ function InteractionModal({
         if (tmpl) {
             setBody(tmpl.body);
             if (!summary) setSummary(tmpl.name);
-        }
-    };
-
-    const getOutcomes = () => {
-        switch (type) {
-            case 'call':
-                return CALL_OUTCOMES;
-            case 'text':
-                return TEXT_OUTCOMES;
-            case 'email':
-                return EMAIL_OUTCOMES;
-            default:
-                return [];
         }
     };
 
@@ -745,12 +746,37 @@ function InteractionModal({
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={typeLabels[type]}>
             <form onSubmit={handleSubmit} className="space-y-4">
-                {type !== 'note' && (
+                {type !== 'note' && type === 'call' && (
+                    <div>
+                        <label className="label">Outcome <span className="text-red-400">*</span></label>
+                        <select
+                            className="input"
+                            value={outcome}
+                            onChange={(e) => setOutcome(e.target.value)}
+                            required
+                        >
+                            <option value="">Select outcome...</option>
+                            {(['positive', 'neutral', 'negative'] as const).map(cat => {
+                                const items = groupedOutcomes[cat];
+                                if (items.length === 0) return null;
+                                const catLabels: Record<string, string> = { positive: '✅ Positive', neutral: '⚪ Neutral', negative: '❌ Negative' };
+                                return (
+                                    <optgroup key={cat} label={catLabels[cat]}>
+                                        {items.map(o => (
+                                            <option key={o.id} value={o.id}>{o.label}</option>
+                                        ))}
+                                    </optgroup>
+                                );
+                            })}
+                        </select>
+                    </div>
+                )}
+                {type !== 'note' && type !== 'call' && (
                     <Select
                         label="Outcome"
                         options={[
                             { value: '', label: 'Select outcome...' },
-                            ...getOutcomes().map(o => ({ value: o, label: OUTCOME_LABELS[o] || o })),
+                            ...(type === 'text' ? TEXT_OUTCOMES : EMAIL_OUTCOMES).map(o => ({ value: o, label: OUTCOME_LABELS[o] || o })),
                         ]}
                         value={outcome}
                         onChange={(e) => setOutcome(e.target.value)}

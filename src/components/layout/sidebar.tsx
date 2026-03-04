@@ -18,6 +18,7 @@ import {
     Kanban,
     FileText,
 } from 'lucide-react';
+import { CompanyLogo } from '@/components/company-logo';
 
 interface SidebarProps {
     userRole: 'admin' | 'advisor';
@@ -70,9 +71,7 @@ export function Sidebar({ userRole, userName }: SidebarProps) {
                 {/* Logo Header */}
                 <div className="p-5 border-b border-[hsl(222,47%,15%)] flex items-center justify-between">
                     <Link href="/dashboard" className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
-                            <span className="text-white font-bold text-lg">P</span>
-                        </div>
+                        <CompanyLogo size={40} className="rounded-xl" />
                         <div>
                             <h1 className="font-bold text-lg bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                                 Prime CRM

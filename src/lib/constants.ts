@@ -193,8 +193,6 @@ export const CALL_LIST_DAYS_THRESHOLD = 5;
 
 export const DEFAULT_IMPORT_SOURCE = 'master_leads_list';
 export const DEFAULT_SHEET_NAME = 'Sheet1';
-export const ADVISOR_COLUMN = 'L';
-
 // Header matching patterns (case/whitespace-insensitive)
 export const HEADER_PATTERNS = {
     firstName: ['first name', 'firstname', 'first_name', 'fist name'],

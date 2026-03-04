@@ -10,6 +10,7 @@ export interface User {
     displayName: string;
     email: string;
     active: boolean;
+    minimumDailyCalls: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -54,6 +55,10 @@ export interface Lead {
     // Raw import
     rawImportPayload: Record<string, unknown> | null;
     rawImportHash: string | null;
+
+    // Call Attempt Tracking
+    callAttemptCount: number;
+    lastCallAttemptAt: string | null;
 
     // Timestamps
     createdAt: string;
