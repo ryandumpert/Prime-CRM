@@ -15,5 +15,4 @@ Run from the project root (`c:\Users\Ryan Dumpert\Documents\Antigravity\Prime-CR
 
 ## Login Credentials
 
-- **Admin**: admin@primecrm.com / admin123
-- **Advisor**: advisor@primecrm.com / advisor123
+- **Admin**: admin@theprimeloanadvisors.com / password
