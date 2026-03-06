@@ -137,10 +137,9 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
     const getDisplayName = () => {
         if (!lead) return 'Loading...';
+        if (lead.firstName && lead.lastName) return `${lead.firstName} ${lead.lastName}`;
         if (lead.fullName) return lead.fullName;
-        if (lead.firstName || lead.lastName) {
-            return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
-        }
+        if (lead.firstName || lead.lastName) return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
         return 'Unknown';
     };
 

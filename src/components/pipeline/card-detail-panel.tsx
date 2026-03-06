@@ -92,7 +92,9 @@ export function CardDetailPanel({
 
     if (!lead || !isOpen) return null;
 
-    const displayName = lead.fullName || [lead.firstName, lead.lastName].filter(Boolean).join(' ') || 'Unknown';
+    const displayName = (lead.firstName && lead.lastName)
+        ? `${lead.firstName} ${lead.lastName}`
+        : lead.fullName || lead.firstName || lead.lastName || 'Unknown';
     const pipeline = lead.pipeline as PipelineType;
     const status = lead.status as LeadStatusType;
     const colors = PIPELINE_COLORS[pipeline];

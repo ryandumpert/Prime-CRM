@@ -144,6 +144,7 @@ export default function DashboardPage() {
     };
 
     const getLeadName = (lead: ScheduleLead) => {
+        if (lead.firstName && lead.lastName) return `${lead.firstName} ${lead.lastName}`;
         if (lead.fullName) return lead.fullName;
         if (lead.firstName || lead.lastName) return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
         return 'Unknown';
@@ -482,16 +483,16 @@ export default function DashboardPage() {
                                         return (
                                             <div className="flex flex-col items-center gap-1">
                                                 <span className={`text-sm font-bold ${quota.quotaMet ? 'text-green-400' :
-                                                        quota.dailyProgress >= 50 ? 'text-yellow-400' :
-                                                            'text-red-400'
+                                                    quota.dailyProgress >= 50 ? 'text-yellow-400' :
+                                                        'text-red-400'
                                                     }`}>
                                                     {quota.callsToday}/{quota.minimumDailyCalls}
                                                 </span>
                                                 <div className="w-full h-1.5 rounded-full bg-gray-700 overflow-hidden">
                                                     <div
                                                         className={`h-full rounded-full transition-all duration-500 ${quota.quotaMet ? 'bg-green-500' :
-                                                                quota.dailyProgress >= 50 ? 'bg-yellow-500' :
-                                                                    'bg-red-500'
+                                                            quota.dailyProgress >= 50 ? 'bg-yellow-500' :
+                                                                'bg-red-500'
                                                             }`}
                                                         style={{ width: `${Math.min(quota.dailyProgress, 100)}%` }}
                                                     />

@@ -79,10 +79,9 @@ export default function CallListPage() {
     const currentLead = leads[currentIndex];
 
     const getDisplayName = (lead: Lead) => {
+        if (lead.firstName && lead.lastName) return `${lead.firstName} ${lead.lastName}`;
         if (lead.fullName) return lead.fullName;
-        if (lead.firstName || lead.lastName) {
-            return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
-        }
+        if (lead.firstName || lead.lastName) return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
         return 'Unknown';
     };
 
@@ -326,10 +325,9 @@ function CallSessionView({
 }) {
     const [showNotes, setShowNotes] = useState(true);
     const getDisplayName = () => {
+        if (lead.firstName && lead.lastName) return `${lead.firstName} ${lead.lastName}`;
         if (lead.fullName) return lead.fullName;
-        if (lead.firstName || lead.lastName) {
-            return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
-        }
+        if (lead.firstName || lead.lastName) return `${lead.firstName || ''} ${lead.lastName || ''}`.trim();
         return 'Unknown';
     };
 
