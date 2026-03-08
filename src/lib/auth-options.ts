@@ -58,6 +58,12 @@ export const authOptions: AuthOptions = {
                     return null;
                 }
 
+                // Record login timestamp
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: { lastLoginAt: new Date() },
+                });
+
                 return {
                     id: user.id,
                     email: user.email,

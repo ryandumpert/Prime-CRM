@@ -6,6 +6,7 @@ import { Button, Card, Input, Select, Modal } from '@/components/ui';
 import {
     Plus,
     Edit,
+    Clock,
     Trash2,
     User,
     Shield,
@@ -21,6 +22,7 @@ interface UserData {
     email: string;
     role: 'admin' | 'advisor';
     active: boolean;
+    lastLoginAt: string | null;
     createdAt: string;
     _count: { assignedLeads: number };
 }
@@ -203,6 +205,20 @@ function UserRow({
                     )}
                 </div>
                 <p className="text-sm text-gray-400">{user.email}</p>
+            </div>
+            <div className="text-center hidden sm:block">
+                <p className="text-sm text-gray-300">
+                    {user.lastLoginAt
+                        ? new Date(user.lastLoginAt).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric',
+                            hour: 'numeric', minute: '2-digit', hour12: true,
+                        })
+                        : 'Never'}
+                </p>
+                <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    Last Login
+                </p>
             </div>
             <div className="text-center">
                 <p className="text-lg font-semibold">{user._count.assignedLeads}</p>

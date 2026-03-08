@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
                 email: true,
                 active: true,
                 minimumDailyCalls: true,
+                lastLoginAt: true,
                 createdAt: true,
                 updatedAt: true,
                 _count: {
